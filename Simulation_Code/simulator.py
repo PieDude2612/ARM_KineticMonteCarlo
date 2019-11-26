@@ -1,9 +1,9 @@
 import numpy as np
-import simulator
 import math
 from matplotlib import pyplot as plt
-from propensity_fcn import propensity_fcn
-from reacRatesCalc import reacRatesCalc
+from Simulation_Code import simulator
+from Simulation_Code import propensity_fcn
+from Simulation_Code import reacRatesCalc
 
 
 class simulator():
