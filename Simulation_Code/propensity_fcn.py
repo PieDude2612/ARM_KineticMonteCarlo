@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class propensity_fcn():
 
     def calc_propensity(stoichmat, xarr, rp, vol):
@@ -24,6 +23,7 @@ class propensity_fcn():
 
     def findSectionPropensity(stoich, x, rateparams, volum):
         negatives = np.array([])
+        val = np.array([])
         i = 0
 
         # iterate through the passed vector to find any negatives (reactants) or
@@ -32,21 +32,32 @@ class propensity_fcn():
         while (i < len(stoich)):
             if (stoich[i] < 0):
                 negatives = np.append(negatives, i)
+                val = np.append(val, np.absolute(stoich[i]))
                 i = i + 1
                 continue
-
-            i = i + 1
+            else:
+                i = i + 1
+                continue
 
         hXt = 1
         k = rateparams
 
         for num in range(len(negatives)):  # any kind of reaction between diff species
             n = int(negatives[num])
+            v = int(val[num])
 
             if (x[n] < 0):
                 return 0
 
-            hXt = hXt * x[n]
+            if (v > 1):  # more than one of same species
+                c = v
+                while (c > 0):
+                    hXt = hXt * (x[n] + (c - v))
+                    c = c - 1
+                continue
+            else:  # different species
+                hXt = hXt * x[n]
+                continue
 
         if ((hXt * k) == k):  # improbable reaction
             return 0

@@ -6,16 +6,30 @@ from Simulation_Code import propensity_fcn
 from Simulation_Code import reacRatesCalc
 
 
+# TODO: Check if the MD import file is row-col-mols or something else
+
 class simulator():
+
     def startup(num):
         # import all data from external files
-        all_data = np.loadtxt(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all.dat', 'r'),
-                              usecols=range(3))
+        all_data = np.loadtxt(
+            open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all.dat', 'r'),
+            usecols=range(3))
         rows = (all_data[:, 0]).astype(int)
         cols = (all_data[:, 1]).astype(int)
         mols = (all_data[:, 2]).astype(int)
 
+        mols_pos = np.array([])
+        for n in range(len(mols)):
+            if (mols[n] < 0):
+                mols_pos = np.append(mols_pos, np.absolute(mols[n]))
+                continue
+            else:
+                mols_pos = np.append(mols_pos, 0)
+                continue
+
         stoich_matrix = np.zeros((np.amax(rows), np.amax(cols)))
+        stoich_pos = np.zeros((np.amax(rows), np.amax(cols)))
 
         index = 0  # load in all data into the specific positions in complete matrices
 
@@ -23,12 +37,16 @@ class simulator():
             sparr = rows[index] - 1
             sparc = cols[index] - 1
             sparv = mols[index]
+            sparv_pos = mols_pos[index]
+
             stoich_matrix[sparr, sparc] = sparv
+            stoich_pos[sparr, sparc] = sparv_pos
             index = index + 1
 
         all_data.clear()
         rows.clear()
         cols.clear()
+        mols.clear()
 
         all_data = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_1.dat', 'r'),
@@ -51,28 +69,26 @@ class simulator():
         all_data.clear()
         rows.clear()
         cols.clear()
+        mols.clear()
 
         all_data = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_1.dat', 'r'),
             usecols=range(3))
-        rows = (all_data[:, 0]).astype(int)
-        cols = (all_data[:, 1]).astype(int)
-        mols = (all_data[:, 2]).astype(int)
+        rowNum = (all_data[:, 1]).astype(int)
+        reacCount = (all_data[:, 2]).astype(int)
 
-        rfpc = np.zeros((np.amax(rows), np.amax(cols)))
+        rfpc = np.zeros((np.amax(rowNum), 2))
 
         index = 0
 
-        while (index < (len(rows) - 1)):  # load data into actual sm
-            sparr = rows[index] - 1
-            sparc = cols[index] - 1
-            sparv = mols[index]
-            rfpc[sparr, sparc] = sparv
+        for r in range(rfpc.shape[0]):
+            rfpc[r, 0] = rowNum[index]
+            rfpc[r, 1] = reacCount[index]
             index = index + 1
 
         all_data.clear()
-        rows.clear()
-        cols.clear()
+        rowNum.clear()
+        reacCount.clear()
 
         # recycle the variables to reduce total memory allocated in the loading process by clearing all data from vars
         # every time the matrices have been loaded
@@ -81,7 +97,7 @@ class simulator():
         volu = 1e-15
         t = np.array([0, 50])
 
-        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, t[0], t[1])
+        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1])
 
         simulator.directMethod(stoich_matrix, t, xi, reaction_rates, volu, 1000)
 
@@ -126,6 +142,7 @@ class simulator():
             X[rxnCount + 1, :] = X[rxnCount, :] + stoich_matrix[mu, :]  # the next molecule count (PRV)
             MU[rxnCount + 1] = mu
             rxnCount = rxnCount + 1
+            ###################################################################################################
 
             if ((rxnCount + 1) >= max_output_length):  # If time allocated is still not exceeded and loop
                 t = T[1:rxnCount]
@@ -143,7 +160,6 @@ class simulator():
 
                 raise Exception("Simulation terminated because max output length has been reached.")
                 break
-        ###################################################################################################
 
         t = T[1:rxnCount]
         x = X[1:rxnCount, 0]
