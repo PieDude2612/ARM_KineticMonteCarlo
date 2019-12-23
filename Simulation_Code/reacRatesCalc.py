@@ -7,7 +7,7 @@ class reacRatesCalc():
         global concexp
 
         numreacts = stoich_mat.shape[1]
-        reactRates = np.zeros(numreacts, 1)
+        reactRates = np.zeros(numreacts)
         tsteps = (endFrame - startFrame) + 1
         backt = 1  # what is this?
 
@@ -21,12 +21,16 @@ class reacRatesCalc():
         for reac in range(numreacts):
             for i in range(reactperFrame.shape[0]):
                 if (reactperFrame[i, 0] == reac):
-                    dkdt = np.append(dkdt, reactperFrame[i, 1])
-                    continue
+                    dkdt = np.append(dkdt, reactperFrame[i, 1])  # array of 1 and 0
+                    continue  # how many times it occurs found by adding up array
 
-                if (np.sum(dkdt) == 0):
+                if (np.sum(dkdt) == 0):  # if reaction given does not occur
                     break
+                # TODO: Does it make more sense to keep everything below this outside second for loop?
 
-                ireact = np.nonzero(stoich_mat_pos[i, :])  # this?
-                concexpirereact = stoich_mat_pos[i, ireact]  # what is this line doing?
-                # conexpirereactmat = np.ones(length(1:tsteps - backt), 1) *conexpirereact
+                ireact = np.nonzero(stoich_mat_pos[reac, :])  # take nonzero value indices out
+                reactionOrder = stoich_mat_pos[i, ireact]  # input their reac num here.
+
+                reacOrderMatrix = np.ones(1, len(tsteps - backt)) * reactionOrder  # matrix operation
+
+                # TODO: Understand the matrix operations in MATLAB code before proceeding. Might need loops.

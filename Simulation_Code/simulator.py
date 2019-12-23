@@ -5,9 +5,6 @@ from Simulation_Code import simulator
 from Simulation_Code import propensity_fcn
 from Simulation_Code import reacRatesCalc
 
-
-# TODO: Check if the MD import file is row-col-mols or something else
-
 class simulator():
 
     def startup(num):
@@ -74,16 +71,17 @@ class simulator():
         all_data = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_1.dat', 'r'),
             usecols=range(3))
+        timestep = (all_data[:, 0]).astype(int)
         rowNum = (all_data[:, 1]).astype(int)
         reacCount = (all_data[:, 2]).astype(int)
 
-        rfpc = np.zeros((np.amax(rowNum), 2))
+        rfpc = np.zeros((np.amax(timestep), 2))
 
         index = 0
 
-        for r in range(rfpc.shape[0]):
-            rfpc[r, 0] = rowNum[index]
-            rfpc[r, 1] = reacCount[index]
+        for tsp in range(rfpc.shape[0]):
+            rfpc[tsp, 0] = rowNum[index]
+            rfpc[tsp, 1] = reacCount[index]
             index = index + 1
 
         all_data.clear()
@@ -155,7 +153,7 @@ class simulator():
                 plt.xlabel("Time (s)")
                 plt.ylabel("Molecules")
                 plt.plot(t, x, t, x2, t, x3, t, x4)
-                plt.legend(["x0", "x1", "x3", "x4"])
+                plt.legend(["x0", "x1", "x2", "x3"])
                 plt.show()
 
                 raise Exception("Simulation terminated because max output length has been reached.")
@@ -171,5 +169,5 @@ class simulator():
         plt.xlabel("Time (s)")
         plt.ylabel("Molecules")
         plt.plot(t, x, t, x2, t, x3, t, x4)
-        plt.legend(["x0", "x1", "x3", "x4"])
+        plt.legend(["x0", "x1", "x2", "x3"])
         plt.show()
