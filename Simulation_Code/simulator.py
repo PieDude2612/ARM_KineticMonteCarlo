@@ -80,8 +80,8 @@ class simulator():
         index = 0
 
         for tsp in range(rfpc.shape[0]):
-            rfpc[tsp, 0] = rowNum[index]
-            rfpc[tsp, 1] = reacCount[index]
+            rfpc[timestep[tsp], 0] = rowNum[index]
+            rfpc[timestep[tsp], 1] = reacCount[index]
             index = index + 1
 
         all_data.clear()
@@ -94,8 +94,9 @@ class simulator():
         nA = 6.023e23
         volu = 1e-15
         t = np.array([0, 50])
+        thresholdReact = 5
 
-        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1])
+        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1], thresholdReact)
 
         simulator.directMethod(stoich_matrix, t, xi, reaction_rates, volu, 1000)
 
