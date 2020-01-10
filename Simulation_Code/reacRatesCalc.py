@@ -1,21 +1,20 @@
 import numpy as np
 import math
 
-
 # rows are reactions. columns are species involved in the reaction
 class reacRatesCalc():
-    def calcrr(x0, reactperFrame, stoich_mat, stoich_mat_pos, startFrame, endFrame, rarereactLimit):
-        global ireactmat
-        global concexp
+    def calcrr(x0, reactperFrame, stoich_mat, stoich_mat_pos, startFrame, endFrame, rarereactLimit, negativeID,
+               concenExp):
+        ireactmat = negativeID  # negative indices from stoich matrix
+        concexp = concenExp  # values in the negative indices from stoich matrix (in n-1 power)
 
         numreacts = stoich_mat.shape[0]
         reactRates = np.zeros(numreacts)
         tsteps = (endFrame - startFrame) + 1
-        backt = 1  # what is this?
+        backt = 1
 
-        sumr = np.zeros(len(reactRates))
-        sumc = np.zeros(len(reactRates))
-        stdkr = np.zeros(len(reactRates, 2))  # what is this?
+        timesHappened = np.zeros(len(reactRates))
+        timesPossible = np.zeros(len(reactRates))
         lenyesr = np.zeros(len(reactRates))
         ##############################################################################################################################
         for reac in range(numreacts):
@@ -38,10 +37,9 @@ class reacRatesCalc():
             reactionNotReady = x0[startFrame:endFrame, reactionOrderIndex[0:len(reactionOrderIndex)]] < \
                                reacOrderMatrix[0:reacOrderMatrix.shape[0], 0:reacOrderMatrix.shape[1]]
 
-            reactionReady = np.where(reactionNotReady == 0)[0]
+            reactionReady = np.where(reactionNotReady[0:reactionNotReady.shape[0], 0:reactionNotReady.shape[1]] == 0)
             yesreact = reactionReady + backt
 
-            xr = np.ones(len(yesreact), np.sum(reactionOrder))
             xr = x0[reactionReady + startFrame - 1, ireactmat[reac, 0:np.sum(reactionOrder)]]
             xr = xr - (np.multiply(np.ones(len(yesreact), 1), concexp[reac, 0:np.sum[reactionOrder]]))
             concreact = np.prod(xr, axis=1)
@@ -50,15 +48,15 @@ class reacRatesCalc():
                 if (concreact[ind] < 0):
                     concreact[ind] = 0
 
-            sumr[reac] = sumr[reac] + np.sum(dkdt[yesreact])
+            timesHappened[reac] = timesHappened[reac] + np.sum(dkdt[yesreact])
             lenyesr[reac] = lenyesr[reac] + len(yesreact)
-            sumc[reac] = sumc[reac] + np.sum(concreact)
+            timesPossible[reac] = timesPossible[reac] + np.sum(concreact)
         ##############################################################################################################################
         for j in range(len(reactRates)):  # k = (integral) dkdt
-            reactRates[j] = (sumr[j] / sumc[j]) / tsteps
+            reactRates[j] = (timesHappened[j] / timesPossible[j]) / tsteps
 
         for val in range(len(reactRates)):  # eliminate rare events through threshold
-            if (sumr[val] < rarereactLimit):
+            if (timesHappened[val] < rarereactLimit):
                 reactRates[val] = 0
 
         # Check for invalid reaction rates

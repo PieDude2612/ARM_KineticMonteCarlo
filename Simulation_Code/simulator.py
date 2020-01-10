@@ -17,6 +17,8 @@ class simulator():
         mols = (all_data[:, 2]).astype(int)
 
         mols_pos = np.array([])
+        mols_neg_id = np.array([])
+        expConc = np.array([])
         for n in range(len(mols)):
             if (mols[n] < 0):
                 mols_pos = np.append(mols_pos, np.absolute(mols[n]))
@@ -39,6 +41,15 @@ class simulator():
             stoich_matrix[sparr, sparc] = sparv
             stoich_pos[sparr, sparc] = sparv_pos
             index = index + 1
+
+        for r in range(stoich_matrix.shape[0]):  # take in the indices of all reactants from stoich_matrix
+            for c in range(stoich_matrix.shape[1]):
+                if (stoich_matrix[r, c] < 0):
+                    mols_neg_id_col = np.append(mols_neg_id_col, c)
+                    expConc = np.append(expConc, np.absolute(stoich_matrix[r, c]))  # TODO: change this definition
+                    continue
+            mols_neg_id[r, 0:c] = mols_neg_id_col[0:len(mols_neg_id_col)]
+            continue
 
         all_data.clear()
         rows.clear()
@@ -96,11 +107,12 @@ class simulator():
         t = np.array([0, 50])
         thresholdReact = 5
 
-        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1], thresholdReact)
+        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1], thresholdReact,
+                                              mols_neg_id, expConc)
 
-        simulator.directMethod(stoich_matrix, t, xi, reaction_rates, volu, 1000)
+        simulator.directMethod(stoich_matrix, t, xi, reaction_rates, 1000)
 
-    def directMethod(stoich_matrix, tspan, x0, reaction_rates, volume, max_output_length):
+    def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
         X = np.zeros((max_output_length, num_species))  # molecules that exist over time
@@ -114,7 +126,7 @@ class simulator():
         while (T[rxnCount] < tspan[1]):  # as long as the time step stays within allocated time
             a = np.double([])
 
-            a = propensity_fcn.calc_propensity(stoich_matrix, X[rxnCount, :], reaction_rates, volume)
+            a = propensity_fcn.calc_propensity(stoich_matrix, X[rxnCount, :], reaction_rates)
             asum = np.sum(a)  # take the entire sum of the prop function
 
             # a = np.append(a, reaction_rates[0] * X[rxnCount, 0] * X[rxnCount, 1])
@@ -145,30 +157,24 @@ class simulator():
 
             if ((rxnCount + 1) >= max_output_length):  # If time allocated is still not exceeded and loop
                 t = T[1:rxnCount]
-                x = X[1:rxnCount, 0]
-                x2 = X[1:rxnCount, 1]
-                x3 = X[1:rxnCount, 2]
-                x4 = X[1:rxnCount, 3]
-
                 plt.figure(1)
                 plt.xlabel("Time (s)")
                 plt.ylabel("Molecules")
-                plt.plot(t, x, t, x2, t, x3, t, x4)
-                plt.legend(["x0", "x1", "x2", "x3"])
+
+                for species in range(num_species):
+                    plt.plot(t, X[1:rxnCount, species])
+
                 plt.show()
 
                 raise Exception("Simulation terminated because max output length has been reached.")
                 break
 
         t = T[1:rxnCount]
-        x = X[1:rxnCount, 0]
-        x2 = X[1:rxnCount, 1]
-        x3 = X[1:rxnCount, 2]
-        x4 = X[1:rxnCount, 3]
-
         plt.figure(1)
         plt.xlabel("Time (s)")
         plt.ylabel("Molecules")
-        plt.plot(t, x, t, x2, t, x3, t, x4)
-        plt.legend(["x0", "x1", "x2", "x3"])
+
+        for species in range(num_species):
+            plt.plot(t, X[1:rxnCount, species])
+
         plt.show()
