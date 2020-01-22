@@ -28,9 +28,10 @@ class reacRatesCalc():
                 if (np.sum(dkdt) == 0):  # if reaction given does not occur
                     break
 
-            reactionOrderIndex = np.nonzero(stoich_mat_pos[reac, :])  # take nonzero value indices out for reactants
-            reactionOrder = stoich_mat_pos[
-                reac, reactionOrderIndex[0:len(reactionOrderIndex)]]  # input their reac num here.
+            reactionOrderIndex = np.nonzero(stoich_mat_pos[reac, :])
+            # take nonzero value indices out for reactants
+            reactionOrder = stoich_mat_pos[reac, reactionOrderIndex[0:len(reactionOrderIndex)]]
+            # input their reac num here.
 
             # reacOrderMatrix = np.multiply(np.ones(1, (tsteps - backt)), reactionOrder)  # matrix of reactant concs
 
@@ -43,8 +44,8 @@ class reacRatesCalc():
 
                     molVal = x0[readyRow, reactionOrderIndex[readyCol]]
                     reactantVal = reactionOrder[readyCol]
-                    checkConcCol = np.append(checkConcCol,
-                                             molVal < reactantVal)  # 0 is false 1 is true for molecule having more conc than required
+                    checkConcCol = np.append(checkConcCol, molVal < reactantVal)
+                    # 0 is false 1 is true for molecule having more conc than required
                 if (np.sum(checkConcCol) > 0):
                     reactionNotReady = np.append(reactionNotReady, 1)
                     continue
@@ -52,8 +53,8 @@ class reacRatesCalc():
             reactionReady = np.where(reactionNotReady[0:len(reactionNotReady)] == 0)
             yesreact = np.add(reactionReady, backt)
 
-            xr = x0[(reactionReady[0:len(reactionReady)]), (
-            ireactmat[reac, 0:len(ireactmat[reac, :])])]  # get all reactants of reactions that are ready
+            xr = x0[(reactionReady[0:len(reactionReady)]), (ireactmat[reac, 0:len(ireactmat[reac, :])])]
+            # get all reactants of reactions that are ready
             xr = xr - (np.multiply(np.ones(len(yesreact), 1), concexp[reac, 0:np.sum[reactionOrder]]))
             concreact = np.prod(xr, axis=1)
 
