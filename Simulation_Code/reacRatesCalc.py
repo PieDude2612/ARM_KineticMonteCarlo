@@ -28,19 +28,32 @@ class reacRatesCalc():
                 if (np.sum(dkdt) == 0):  # if reaction given does not occur
                     break
 
-            reactionOrderIndex = np.nonzero(stoich_mat_pos[reac, :])  # take nonzero value indices out
+            reactionOrderIndex = np.nonzero(stoich_mat_pos[reac, :])  # take nonzero value indices out for reactants
             reactionOrder = stoich_mat_pos[
                 reac, reactionOrderIndex[0:len(reactionOrderIndex)]]  # input their reac num here.
 
-            reacOrderMatrix = np.multiply(np.ones(1, len(tsteps - backt)), reactionOrder)  # matrix operation
+            # reacOrderMatrix = np.multiply(np.ones(1, (tsteps - backt)), reactionOrder)  # matrix of reactant concs
 
-            reactionNotReady = x0[startFrame:endFrame, reactionOrderIndex[0:len(reactionOrderIndex)]] < \
-                               reacOrderMatrix[0:reacOrderMatrix.shape[0], 0:reacOrderMatrix.shape[1]]
+            # reactionNotReady = x0[startFrame:endFrame, reactionOrderIndex[0:len(reactionOrderIndex)]] < reacOrderMatrix[0:reacOrderMatrix.shape[0], 0:reacOrderMatrix.shape[1]] # 1D array of 0 and 1
+            reactionNotReady = np.array([])
 
-            reactionReady = np.where(reactionNotReady[0:reactionNotReady.shape[0], 0:reactionNotReady.shape[1]] == 0)
-            yesreact = reactionReady + backt
+            for readyRow in range(x0.shape[0]):
+                for readyCol in range(len(reactionOrder)):
+                    checkConcCol = np.bool([])
 
-            xr = x0[reactionReady + startFrame - 1, ireactmat[reac, 0:np.sum(reactionOrder)]]
+                    molVal = x0[readyRow, reactionOrderIndex[readyCol]]
+                    reactantVal = reactionOrder[readyCol]
+                    checkConcCol = np.append(checkConcCol,
+                                             molVal < reactantVal)  # 0 is false 1 is true for molecule having more conc than required
+                if (np.sum(checkConcCol) > 0):
+                    reactionNotReady = np.append(reactionNotReady, 1)
+                    continue
+
+            reactionReady = np.where(reactionNotReady[0:len(reactionNotReady)] == 0)
+            yesreact = np.add(reactionReady, backt)
+
+            xr = x0[(reactionReady[0:len(reactionReady)]), (
+            ireactmat[reac, 0:len(ireactmat[reac, :])])]  # get all reactants of reactions that are ready
             xr = xr - (np.multiply(np.ones(len(yesreact), 1), concexp[reac, 0:np.sum[reactionOrder]]))
             concreact = np.prod(xr, axis=1)
 
@@ -60,10 +73,12 @@ class reacRatesCalc():
                 reactRates[val] = 0
 
         # Check for invalid reaction rates
-        for k in range(len(reactRates)):
+        for k in range(len(reactRates)):  # some other error causing divide by 0
             if (reactRates[k] >= math.inf):
                 print("Error. Contains NaN k")
                 break
-            if (sum(reactRates) > (1 / tsteps)):
+            if (sum(reactRates) > (
+                    1 / tsteps)):  # if the time of reaction is greater than the time allocated for simulation
                 print("Error. Some k values are too large.")
                 break
+        return reactRates
