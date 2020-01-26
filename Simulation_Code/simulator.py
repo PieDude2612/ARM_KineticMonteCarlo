@@ -17,10 +17,6 @@ class simulator():
         mols = (all_data[:, 2]).astype(int)
 
         mols_pos = np.array([])
-        mols_neg_id = np.array([])
-        mols_neg_id_col = np.array([])
-        expConc = np.array([])
-        expConc_col = np.array([])
         for n in range(len(mols)):
             if (mols[n] < 0):
                 mols_pos = np.append(mols_pos, np.absolute(mols[n]))
@@ -44,16 +40,19 @@ class simulator():
             stoich_pos[sparr, sparc] = sparv_pos
             index = index + 1
 
+        mols_neg_id = np.array([])
+        mols_neg_id_col = np.array([])
+        expConc = np.array([])
+        expConc_col = np.array([])
+
         for r in range(stoich_matrix.shape[0]):
-            cVal = 0
             for c in range(stoich_matrix.shape[1]):
                 if (stoich_matrix[r, c] < 0):
-                    mols_neg_id_col = np.append(mols_neg_id_col, c)  # take all index values for reactants
-                    expConc_col = np.append(expConc_col, stoich_matrix[r, c])  # take their value
-                    cVal = cVal + 1
+                    mols_neg_id_col = np.append(mols_neg_id_col, c)
+                    expConc_col = np.append(expConc_col, stoich_matrix[r, c])
                     continue
-            mols_neg_id = np.append(mols_neg_id, mols_neg_id_col)  # add the column value array to the big array
-            expConc = np.append(expConc, expConc_col)  # creates a matrix sort of
+            mols_neg_id = np.append(mols_neg_id, mols_neg_id_col, axis=0)
+            expConc = np.append(expConc, expConc_col, axis=0)
 
         # all_data.clear()
         # rows.clear()
@@ -93,8 +92,6 @@ class simulator():
         reacCount = (all_data3[:, 2]).astype(int)
 
         rfpc = np.zeros((np.amax(timestep), np.amax(reacNum)))
-        print(rfpc.shape[0])
-        print(rfpc.shape[1])
 
         for tsp in range(len(timestep)):
             rfpc[timestep[tsp] - 1, reacNum[tsp] - 1] = reacCount[tsp]

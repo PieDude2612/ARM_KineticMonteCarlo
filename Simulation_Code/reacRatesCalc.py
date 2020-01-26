@@ -53,7 +53,13 @@ class reacRatesCalc():
             reactionReady = np.where(reactionNotReady[0:len(reactionNotReady)] == 0)
             yesreact = np.add(reactionReady, backt)
 
-            xr = x0[(reactionReady[0:len(reactionReady)]), (ireactmat[reac, 0:len(ireactmat[reac, :])])]
+            xr = np.array([])
+            xr_col = np.array([])
+            for reacReadyRow in range(len(reactionReady)):
+                for reactantReady in range(ireactmat[reac].shape[1]):
+                    xr_col = np.append(xr_col, x0[reactionReady[reacReadyRow], ireactmat[reac, reactantReady]])
+                xr = np.append(xr, xr_col, axis=0)
+
             # get all reactants of reactions that are ready
             xr = xr - (np.multiply(np.ones(len(yesreact), 1), concexp[reac, 0:np.sum[reactionOrder]]))
             concreact = np.prod(xr, axis=1)
