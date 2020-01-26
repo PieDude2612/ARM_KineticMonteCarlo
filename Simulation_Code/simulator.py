@@ -17,42 +17,52 @@ class simulator():
         mols = (all_data[:, 2]).astype(int)
 
         mols_pos = np.array([])
+        rows_neg = np.array([]).astype(int)
+        cols_neg = np.array([]).astype(int)
         for n in range(len(mols)):
             if (mols[n] < 0):
                 mols_pos = np.append(mols_pos, np.absolute(mols[n]))
+                rows_neg = np.append(rows_neg, rows[n])
+                cols_neg = np.append(cols_neg, cols[n])
                 continue
             else:
                 mols_pos = np.append(mols_pos, 0)
                 continue
 
         stoich_matrix = np.zeros((np.amax(rows), np.amax(cols)))
-        stoich_pos = np.zeros((np.amax(rows), np.amax(cols)))
+        stoich_pos = np.zeros((np.amax(rows_neg), np.amax(cols_neg)))
+
+        mols_neg_id = np.zeros((np.amax(rows), np.amax(cols)))
+        expConc = np.zeros((np.amax(rows), np.amax(cols)))
 
         index = 0  # load in all data into the specific positions in complete matrices
 
-        while (index < (len(rows) - 1)):  # load data into actual sm
+        while (index < (np.amax(rows) - 1)):  # load data into actual sm
             sparr = rows[index] - 1
             sparc = cols[index] - 1
             sparv = mols[index]
-            sparv_pos = mols_pos[index]
 
             stoich_matrix[sparr, sparc] = sparv
-            stoich_pos[sparr, sparc] = sparv_pos
             index = index + 1
 
-        mols_neg_id = np.array([])
-        mols_neg_id_col = np.array([])
-        expConc = np.array([])
-        expConc_col = np.array([])
+        index = 0
+
+        while (index < (np.amax(rows_neg) - 1)):
+            sparr_pos = rows_neg[index] - 1
+            sparc_pos = cols_neg[index] - 1
+            sparv_pos = mols_pos[index]
+
+            stoich_pos[sparr_pos, sparc_pos] = sparv_pos
+            index = index + 1
 
         for r in range(stoich_matrix.shape[0]):
+            ind = 0
             for c in range(stoich_matrix.shape[1]):
                 if (stoich_matrix[r, c] < 0):
-                    mols_neg_id_col = np.append(mols_neg_id_col, c)
-                    expConc_col = np.append(expConc_col, stoich_matrix[r, c])
+                    mols_neg_id[r, ind] = c
+                    expConc[r, ind] = stoich_matrix[r, c]
+                    ind = ind + 1
                     continue
-            mols_neg_id = np.append(mols_neg_id, mols_neg_id_col, axis=0)
-            expConc = np.append(expConc, expConc_col, axis=0)
 
         # all_data.clear()
         # rows.clear()

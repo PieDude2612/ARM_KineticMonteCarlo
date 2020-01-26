@@ -56,7 +56,7 @@ class reacRatesCalc():
             xr = np.array([])
             xr_col = np.array([])
             for reacReadyRow in range(len(reactionReady)):
-                for reactantReady in range(ireactmat[reac].shape[1]):
+                for reactantReady in range(len(ireactmat[reac, :])):
                     xr_col = np.append(xr_col, x0[reactionReady[reacReadyRow], ireactmat[reac, reactantReady]])
                 xr = np.append(xr, xr_col, axis=0)
 
