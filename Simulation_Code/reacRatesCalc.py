@@ -38,7 +38,7 @@ class reacRatesCalc():
             # reactionNotReady = x0[startFrame:endFrame, reactionOrderIndex[0:len(reactionOrderIndex)]] < reacOrderMatrix[0:reacOrderMatrix.shape[0], 0:reacOrderMatrix.shape[1]] # 1D array of 0 and 1
             reactionNotReady = np.array([])
 
-            for readyRow in range(x0.shape[0]):
+            for readyRow in range(x0.shape[0]): #find out if a reaction is ready or not
                 for readyCol in range(len(reactionOrder)):
                     checkConcCol = np.bool([])
 
@@ -53,10 +53,12 @@ class reacRatesCalc():
             reactionReady = np.where(reactionNotReady[0:len(reactionNotReady)] == 0)
             yesreact = np.add(reactionReady, backt)
 
-            xr = np.array([])
+            xr = np.array([]) #do the math to find the rates
             xr_col = np.array([])
             for reacReadyRow in range(len(reactionReady)):
                 for reactantReady in range(len(ireactmat[reac, :])):
+                    print(reactionReady[reacReadyRow])
+                    print(ireactmat[reac, reactantReady])
                     xr_col = np.append(xr_col, x0[reactionReady[reacReadyRow], ireactmat[reac, reactantReady]])
                 xr = np.append(xr, xr_col, axis=0)
 

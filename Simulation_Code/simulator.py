@@ -16,7 +16,7 @@ class simulator():
         cols = (all_data[:, 1]).astype(int)
         mols = (all_data[:, 2]).astype(int)
 
-        mols_pos = np.array([])
+        mols_pos = np.array([]).astype(int)
         rows_neg = np.array([]).astype(int)
         cols_neg = np.array([]).astype(int)
         for n in range(len(mols)):
@@ -25,51 +25,48 @@ class simulator():
                 rows_neg = np.append(rows_neg, rows[n])
                 cols_neg = np.append(cols_neg, cols[n])
                 continue
-            else:
-                mols_pos = np.append(mols_pos, 0)
-                continue
 
         stoich_matrix = np.zeros((np.amax(rows), np.amax(cols)))
-        stoich_pos = np.zeros((np.amax(rows_neg), np.amax(cols_neg)))
+        stoich_pos = np.zeros((np.amax(rows), np.amax(cols)))
 
         mols_neg_id = np.zeros((np.amax(rows), np.amax(cols)))
         expConc = np.zeros((np.amax(rows), np.amax(cols)))
 
-        index = 0  # load in all data into the specific positions in complete matrices
-
-        while (index < (np.amax(rows) - 1)):  # load data into actual sm
+        for index in range(len(rows)):  # load data into actual sm
             sparr = rows[index] - 1
             sparc = cols[index] - 1
             sparv = mols[index]
 
             stoich_matrix[sparr, sparc] = sparv
-            index = index + 1
 
-        index = 0
-
-        while (index < (np.amax(rows_neg) - 1)):
-            sparr_pos = rows_neg[index] - 1
-            sparc_pos = cols_neg[index] - 1
-            sparv_pos = mols_pos[index]
+        for indexx in range(len(rows_neg)):
+            sparr_pos = rows_neg[indexx] - 1
+            sparc_pos = cols_neg[indexx] - 1
+            sparv_pos = mols_pos[indexx]
 
             stoich_pos[sparr_pos, sparc_pos] = sparv_pos
-            index = index + 1
 
         for r in range(stoich_matrix.shape[0]):
             ind = 0
             for c in range(stoich_matrix.shape[1]):
                 if (stoich_matrix[r, c] < 0):
-                    mols_neg_id[r, ind] = c
-                    expConc[r, ind] = stoich_matrix[r, c]
-                    ind = ind + 1
+                    exponent = 0
+                    for num in range(stoich_matrix[r, c]):
+                        mols_neg_id[r, ind] = c
+                        #have to append ID as many times as exponent for math
+                        expConc[r, ind] = exponent
+                        #need to go from 0 to whatever exponent for math
+                        exponent = exponent + 1
+                        ind = ind + 1
                     continue
 
         # all_data.clear()
         # rows.clear()
         # cols.clear()
         # mols.clear()
-        # mols_neg_id_col.clear()
-        # expConc_col.clear()
+        # mols_pos.clear()
+        # rows_neg.clear()
+        # cols_neg.clear()
 
         all_data2 = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_1.dat', 'r'),
@@ -89,10 +86,10 @@ class simulator():
             xi[sparr, sparc] = sparv
             index = index + 1
 
-        # all_data.clear()
-        # rows.clear()
-        # cols.clear()
-        # mols.clear()
+        # all_data2.clear()
+        # rows2.clear()
+        # cols2.clear()
+        # mols2.clear()
 
         all_data3 = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_1.dat', 'r'),
@@ -106,8 +103,9 @@ class simulator():
         for tsp in range(len(timestep)):
             rfpc[timestep[tsp] - 1, reacNum[tsp] - 1] = reacCount[tsp]
 
-        # all_data.clear()
-        # rowNum.clear()
+        # all_data3.clear()
+        # timestep.clear()
+        # reacNum.clear()
         # reacCount.clear()
 
         # recycle the variables to reduce total memory allocated in the loading process by clearing all data from vars
