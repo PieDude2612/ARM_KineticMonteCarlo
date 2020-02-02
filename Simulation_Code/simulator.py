@@ -26,11 +26,11 @@ class simulator():
                 cols_neg = np.append(cols_neg, cols[n])
                 continue
 
-        stoich_matrix = np.zeros((np.amax(rows), np.amax(cols)))
-        stoich_pos = np.zeros((np.amax(rows), np.amax(cols)))
+        stoich_matrix = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
+        stoich_pos = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
 
-        mols_neg_id = np.zeros((np.amax(rows), np.amax(cols)))
-        expConc = np.zeros((np.amax(rows), np.amax(cols)))
+        mols_neg_id = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
+        expConc = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
 
         for index in range(len(rows)):  # load data into actual sm
             sparr = rows[index] - 1
@@ -46,10 +46,10 @@ class simulator():
 
             stoich_pos[sparr_pos, sparc_pos] = sparv_pos
 
-        for r in range(stoich_matrix.shape[0]):
-            ind = 0
-            for c in range(stoich_matrix.shape[1]):
+        for r in range(len(stoich_matrix)):
+            for c in range(len(stoich_matrix[r])):
                 if (stoich_matrix[r, c] < 0):
+                    ind = 0
                     exponent = 0
                     for num in range(stoich_matrix[r, c]):
                         mols_neg_id[r, ind] = c
