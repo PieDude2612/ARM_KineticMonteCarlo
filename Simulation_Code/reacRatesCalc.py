@@ -18,15 +18,19 @@ class reacRatesCalc():
         lenyesr = np.zeros(len(reactRates))
         ##############################################################################################################################
         for reac in range(numreacts):
+            tally = 0
             dkdt = np.array([])
 
             for i in range(reactperFrame.shape[0]):
                 if (reactperFrame[i, 0] == reac):
-                    dkdt = np.append(dkdt, reactperFrame[i, 1])  # array of 1 and 0
-                    continue  # how many times it occurs found by adding up array
+                    tally = tally + 1
+                    continue  # how many times it occurs
 
-                if (np.sum(dkdt) == 0):  # if reaction given does not occur
+                if (tally == 0):  # if reaction given does not occur
                     break
+                else:
+                    dkdt = np.append(dkdt, tally)
+                    continue
 
             reactionOrderIndex = np.nonzero(stoich_mat_pos[reac, :])
             # take nonzero value indices out for reactants
@@ -38,39 +42,41 @@ class reacRatesCalc():
             # reactionNotReady = x0[startFrame:endFrame, reactionOrderIndex[0:len(reactionOrderIndex)]] < reacOrderMatrix[0:reacOrderMatrix.shape[0], 0:reacOrderMatrix.shape[1]] # 1D array of 0 and 1
             reactionNotReady = np.array([])
 
-            for readyRow in range(x0.shape[0]): #find out if a reaction is ready or not
-                for readyCol in range(len(reactionOrder)):
+            for timestep in range(x0.shape[0]): #find out if a reaction is ready or not
+                for species in range(len(reactionOrderIndex)):
                     checkConcCol = np.bool([])
 
-                    molVal = x0[readyRow, reactionOrderIndex[readyCol]]
-                    reactantVal = reactionOrder[readyCol]
+                    molVal = x0[timestep, reactionOrderIndex[species]]
+                    reactantVal = reactionOrder[species]
                     checkConcCol = np.append(checkConcCol, molVal < reactantVal)
                     # 0 is false 1 is true for molecule having more conc than required
                 if (np.sum(checkConcCol) > 0):
                     reactionNotReady = np.append(reactionNotReady, 1)
                     continue
 
+            yesreact = np.array([])
             reactionReady = np.where(reactionNotReady[0:len(reactionNotReady)] == 0)
-            yesreact = np.add(reactionReady, backt)
+            yesreact = np.append(yesreact, reactionReady)
 
             xr = np.array([]) #do the math to find the rates
             xr_col = np.array([])
-            for reacReadyRow in range(len(reactionReady)):
-                for reactantReady in range(len(ireactmat[reac, :])):
-                    print(reactionReady[reacReadyRow])
-                    print(ireactmat[reac, reactantReady])
-                    xr_col = np.append(xr_col, x0[reactionReady[reacReadyRow], ireactmat[reac, reactantReady]])
+            for timestepWhereReady in range(len(reactionReady)):
+                for speciesAtTimestep in range(len(ireactmat[reac, :])):
+                    xr_col = np.append(xr_col, x0[reactionReady[timestepWhereReady], ireactmat[reac, speciesAtTimestep]])
                 xr = np.append(xr, xr_col, axis=0)
 
             # get all reactants of reactions that are ready
-            xr = xr - (np.multiply(np.ones(len(yesreact), 1), concexp[reac, 0:np.sum[reactionOrder]]))
+            print(concexp[reac, 0:np.sum(reactionOrder)])
+            print(len(yesreact))
+            xr = xr - (np.dot(np.ones([1, len(yesreact)]), concexp[reac, 0:np.sum(reactionOrder)]))
             concreact = np.prod(xr, axis=1)
 
+            np.delete(yesreact, 0, 0)
             for ind in range(len(concreact)):
                 if (concreact[ind] < 0):
                     concreact[ind] = 0
 
-            timesHappened[reac] = timesHappened[reac] + np.sum(dkdt[yesreact])
+            timesHappened[reac] = timesHappened[reac] + dkdt[yesreact]
             lenyesr[reac] = lenyesr[reac] + len(yesreact)
             timesPossible[reac] = timesPossible[reac] + np.sum(concreact)
         ##############################################################################################################################
