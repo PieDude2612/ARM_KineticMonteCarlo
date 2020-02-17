@@ -117,7 +117,7 @@ class simulator():
         reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1], thresholdReact,
                                               mols_neg_id, expConc)
 
-        simulator.directMethod(stoich_matrix, t, xi, reaction_rates, 1000)
+        simulator.directMethod(stoich_matrix, t, xi[0, :], reaction_rates, 1000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
@@ -125,7 +125,7 @@ class simulator():
         X = np.zeros((max_output_length, num_species))  # molecules that exist over time
         MU = np.zeros((max_output_length, 1))
         T[0] = tspan[0]
-        X[0, 0:len(x0)] = x0
+        X[0, :] = x0
 
         rxnCount = 0
 
@@ -180,7 +180,7 @@ class simulator():
         plt.xlabel("Time (s)")
         plt.ylabel("Molecules")
 
-        for species in range((num_species / 13)):
+        for species in range(2):
             plt.plot(t, X[0:(rxnCount - 1), species])
 
         plt.show()
