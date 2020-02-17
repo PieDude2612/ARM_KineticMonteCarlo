@@ -46,11 +46,11 @@ class simulator():
         expConc = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
 
         for r in range(stoich_matrix.shape[0]):
+            ind = 0
             for c in range(stoich_matrix.shape[1]):
                 if (stoich_matrix[r, c] < 0):
-                    ind = 0
                     exponent = 0
-                    for num in range(stoich_matrix[r, c]):
+                    for num in range(np.absolute(stoich_matrix[r, c])):
                         mols_neg_id[r, ind] = c + 1
                         #have to append ID as many times as exponent for math
                         expConc[r, ind] = exponent
