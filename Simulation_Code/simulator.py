@@ -24,7 +24,6 @@ class simulator():
                 mols_pos = np.append(mols_pos, np.absolute(mols[n]))
                 rows_neg = np.append(rows_neg, rows[n])
                 cols_neg = np.append(cols_neg, cols[n])
-                continue
 
         stoich_matrix = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
         stoich_pos = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
@@ -46,8 +45,8 @@ class simulator():
         mols_neg_id = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
         expConc = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
 
-        for r in range(len(stoich_matrix)):
-            for c in range(len(stoich_matrix[r])):
+        for r in range(stoich_matrix.shape[0]):
+            for c in range(stoich_matrix.shape[1]):
                 if (stoich_matrix[r, c] < 0):
                     ind = 0
                     exponent = 0
@@ -58,7 +57,6 @@ class simulator():
                         #need to go from 0 to whatever exponent for math
                         exponent = exponent + 1
                         ind = ind + 1
-                    continue
 
         # all_data.clear()
         # rows.clear()
@@ -75,7 +73,7 @@ class simulator():
         cols2 = (all_data2[:, 1]).astype(int)
         mols2 = (all_data2[:, 2]).astype(int)
 
-        xi = np.zeros((np.amax(rows2), np.amax(cols2)))
+        xi = np.zeros((np.amax(rows2), np.amax(cols2))).astype(int)
 
         index = 0
 
@@ -98,7 +96,7 @@ class simulator():
         reacNum = (all_data3[:, 1]).astype(int)
         reacCount = (all_data3[:, 2]).astype(int)
 
-        rfpc = np.zeros((np.amax(timestep), np.amax(reacNum)))
+        rfpc = np.zeros((np.amax(timestep), np.amax(reacNum))).astype(int)
 
         for tsp in range(len(timestep)):
             rfpc[timestep[tsp] - 1, reacNum[tsp] - 1] = reacCount[tsp]

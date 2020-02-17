@@ -32,23 +32,24 @@ class reacRatesCalc():
             reactionReady = np.array([]).astype(int)
 
             for timestep in range(x0.shape[0]): #find out if a reaction is ready or not
+                checkReactant = 0
                 for species in range(len(reactionOrderIndex)):
                     molVal = x0[timestep, reactionOrderIndex[species]]
                     reactantVal = reactionOrder[species]
 
                     if(molVal < reactantVal):
                         reactionNotReady = np.append(reactionNotReady, timestep)
-                        continue
-                    elif(molVal > reactantVal):
-                        reactionReady = np.append(reactionReady, timestep)
-                        continue
+                        checkReactant = checkReactant + 1
+                        break
+
+                if(checkReactant == 0):
+                    reactionReady = np.append(reactionReady, timestep)
                     # 0 is false 1 is true for molecule having more conc than required
-                continue
 
             xr = x0[reactionReady, ireactmat[reac, np.nonzero(ireactmat[reac, :])] - 1].astype(int)
 
             # get all reactants of reactions that are ready
-            theOrderMatrix = np.multiply(np.ones(len(reactionReady), 1), concexp[reac, :])
+            theOrderMatrix = np.multiply(np.ones((1, len(reactionReady))), concexp[reac, :])
             xr = np.subtract(xr, theOrderMatrix) # operands could not be broadcast together with shapes 0, 26
             concreact = np.append(concreact, np.prod(xr, axis=1))
 
