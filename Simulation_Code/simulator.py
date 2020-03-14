@@ -58,53 +58,53 @@ class simulator():
                         exponent = exponent + 1
                         ind = ind + 1
 
-        # all_data.clear()
-        # rows.clear()
-        # cols.clear()
-        # mols.clear()
-        # mols_pos.clear()
-        # rows_neg.clear()
-        # cols_neg.clear()
+        all_data = None
+        rows = None
+        cols = None
+        mols = None
+        mols_pos = None
+        rows_neg = None
+        cols_neg = None
 
-        all_data2 = np.loadtxt(
+        all_data = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_1.dat', 'r'),
             usecols=range(3))
-        rows2 = (all_data2[:, 0]).astype(int)
-        cols2 = (all_data2[:, 1]).astype(int)
-        mols2 = (all_data2[:, 2]).astype(int)
+        rows = (all_data[:, 0]).astype(int)
+        cols = (all_data[:, 1]).astype(int)
+        mols = (all_data[:, 2]).astype(int)
 
-        xi = np.zeros((np.amax(rows2), np.amax(cols2))).astype(int)
+        xi = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
 
         index = 0
 
         while (index < (len(rows) - 1)):  # load data into actual xi
-            sparr = rows2[index] - 1
-            sparc = cols2[index] - 1
-            sparv = mols2[index]
+            sparr = rows[index] - 1
+            sparc = cols[index] - 1
+            sparv = mols[index]
             xi[sparr, sparc] = sparv
             index = index + 1
 
-        # all_data2.clear()
-        # rows2.clear()
-        # cols2.clear()
-        # mols2.clear()
+        all_data = None
+        rows = None
+        cols = None
+        mols = None
 
-        all_data3 = np.loadtxt(
+        all_data = np.loadtxt(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_1.dat', 'r'),
             usecols=range(3))
-        timestep = (all_data3[:, 0]).astype(int)
-        reacNum = (all_data3[:, 1]).astype(int)
-        reacCount = (all_data3[:, 2]).astype(int)
+        timestep = (all_data[:, 0]).astype(int)
+        reacNum = (all_data[:, 1]).astype(int)
+        reacCount = (all_data[:, 2]).astype(int)
 
         rfpc = np.zeros((np.amax(timestep), np.amax(reacNum))).astype(int)
 
         for tsp in range(len(timestep)):
             rfpc[timestep[tsp] - 1, reacNum[tsp] - 1] = reacCount[tsp]
 
-        # all_data3.clear()
-        # timestep.clear()
-        # reacNum.clear()
-        # reacCount.clear()
+        all_data = None
+        timestep = None
+        reacNum = None
+        reacCount = None
 
         # recycle the variables to reduce total memory allocated in the loading process by clearing all data from vars
         # every time the matrices have been loaded

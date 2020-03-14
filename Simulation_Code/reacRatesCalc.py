@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import sys
 
 # rows are reactions. columns are species involved in the reaction
 class reacRatesCalc():
@@ -18,35 +19,21 @@ class reacRatesCalc():
         ##############################################################################################################################
         for reac in range(numreacts):
             dkdt = np.sum(reactperFrame[:, reac])
-            reactionOrderIndex = np.array([]).astype(int)
-            reactionOrder = np.array([]).astype(int)
-
-            for reactants in range(len(stoich_mat_pos[reac, :])):
-                if(stoich_mat_pos[reac, reactants] > 0):
-                    reactionOrderIndex = np.append(reactionOrderIndex, reactants)
-                    # take nonzero value indices out for reactants
-                    reactionOrder = np.append(reactionOrder, stoich_mat_pos[reac, reactants])
-                    # input their reac num here.
+            reactionOrderIndex = np.nonzero(stoich_mat_pos[reac, :])
+            reactionOrder = stoich_mat_pos[reac, reactionOrderIndex]
 
             reactionNotReady = np.array([]).astype(int)
             reactionReady = np.array([]).astype(int)
 
             for timestep in range(x0.shape[0]): #find out if a reaction is ready or not
-                checkReactant = 0
-                for species in range(len(reactionOrderIndex)):
-                    molVal = x0[timestep, reactionOrderIndex[species]]
-                    reactantVal = reactionOrder[species]
-
-                    if(molVal < reactantVal):
-                        reactionNotReady = np.append(reactionNotReady, timestep)
-                        checkReactant = checkReactant + 1
-                        break
-
-                if(checkReactant == 0):
+                isIt = all(x0[timestep, reactionOrderIndex[0]] > reactionOrder[0])
+                if (isIt):
                     reactionReady = np.append(reactionReady, timestep)
-                    # 0 is false 1 is true for molecule having more conc than required
+                else:
+                    reactionNotReady = np.append(reactionNotReady, timestep)
 
-            fortheCalc = ireactmat[reac, np.nonzero(ireactmat[reac, :])] - 1
+            fortheCalc = ireactmat[reac, np.nonzero(ireactmat[reac, :])]
+            fortheCalc = fortheCalc - 1
             xr = x0[reactionReady, :][:, fortheCalc[0]].astype(int)
 
             reactantLengths = np.array(np.nonzero(ireactmat[reac, :]))
@@ -54,6 +41,7 @@ class reacRatesCalc():
             theOrderMatrix = np.multiply(np.ones((len(reactionReady), 1)), concexp[reac, 0:reactantLengths.shape[1]])
             xr = np.subtract(xr, theOrderMatrix) # operands could not be broadcast together with shapes 0, 26
             concreact = np.prod(xr, axis=1)
+            #TODO: Somewhere in the math there is a 0 for concreact. Find it and fix it.
 
             for ind in range(len(concreact)):
                 if (concreact[ind] < 0):
@@ -70,12 +58,12 @@ class reacRatesCalc():
                 reactRates[val] = 0
 
         # Check for invalid reaction rates
-        for k in range(len(reactRates)):  # some other error causing divide by 0
-            if (reactRates[k] >= math.inf):
-                print("Error. Contains NaN k")
-                break
-            if (reactRates[k] > (1 / tsteps)):
-                # if the time of reaction is greater than the time allocated for simulation
-                print("Error. Some k values are too large.")
-                break
+        if (any(reactRates >= math.inf)):
+            print("Error. Contains NaN k")
+            sys.exit()
+        if (any(reactRates > (1 / tsteps))):
+            # if the time of reaction is greater than the time allocated for simulation
+            print("Error. Some k values are too large.")
+            sys.exit()
+
         return reactRates
