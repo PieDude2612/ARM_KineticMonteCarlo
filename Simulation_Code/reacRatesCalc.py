@@ -40,7 +40,6 @@ class reacRatesCalc():
             xr = np.subtract(xr, theOrderMatrix) # operands could not be broadcast together with shapes 0, 26
             concreact = np.array([])
             concreact = np.append(concreact, np.prod(xr, axis=1))
-            #TODO: Somewhere in the math there is a 0 for concreact. Find it and fix it.
 
             for ind in range(len(concreact)):
                 if (concreact[ind] < 0):
