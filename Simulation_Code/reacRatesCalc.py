@@ -11,11 +11,9 @@ class reacRatesCalc():
 
         numreacts = stoich_mat.shape[0]
         reactRates = np.zeros(numreacts)
-        tsteps = (endFrame - startFrame) + 1
 
         timesHappened = np.zeros(len(reactRates))
         timesPossible = np.zeros(len(reactRates))
-        concreact = np.array([])
         ##############################################################################################################################
         for reac in range(numreacts):
             dkdt = np.sum(reactperFrame[:, reac])
@@ -26,7 +24,7 @@ class reacRatesCalc():
             reactionReady = np.array([]).astype(int)
 
             for timestep in range(x0.shape[0]): #find out if a reaction is ready or not
-                isIt = all(x0[timestep, reactionOrderIndex[0]] > reactionOrder[0])
+                isIt = all(x0[timestep, reactionOrderIndex[0]] >= reactionOrder[0])
                 if (isIt):
                     reactionReady = np.append(reactionReady, timestep)
                 else:
@@ -40,7 +38,8 @@ class reacRatesCalc():
             # get all reactants of reactions that are ready
             theOrderMatrix = np.multiply(np.ones((len(reactionReady), 1)), concexp[reac, 0:reactantLengths.shape[1]])
             xr = np.subtract(xr, theOrderMatrix) # operands could not be broadcast together with shapes 0, 26
-            concreact = np.prod(xr, axis=1)
+            concreact = np.array([])
+            concreact = np.append(concreact, np.prod(xr, axis=1))
             #TODO: Somewhere in the math there is a 0 for concreact. Find it and fix it.
 
             for ind in range(len(concreact)):
@@ -49,9 +48,10 @@ class reacRatesCalc():
 
             timesHappened[reac] = dkdt
             timesPossible[reac] = np.sum(concreact)
+            # 5CH3 + 3H
         ##############################################################################################################################
         for j in range(len(reactRates)):  # k = (integral) dkdt
-            reactRates[j] = (timesHappened[j] / timesPossible[j]) / tsteps
+            reactRates[j] = (timesHappened[j] / timesPossible[j]) / 0.012
 
         for val in range(len(reactRates)):  # eliminate rare events through threshold
             if (timesHappened[val] < rarereactLimit):
@@ -61,7 +61,7 @@ class reacRatesCalc():
         if (any(reactRates >= math.inf)):
             print("Error. Contains NaN k")
             sys.exit()
-        if (any(reactRates > (1 / tsteps))):
+        if (any(reactRates > (1 / 0.012))):
             # if the time of reaction is greater than the time allocated for simulation
             print("Error. Some k values are too large.")
             sys.exit()

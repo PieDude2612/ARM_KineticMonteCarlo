@@ -111,13 +111,13 @@ class simulator():
 
         nA = 6.023e23
         volu = 1e-15
-        t = np.array([0, 50])
+        t = np.array([0, 20000])
         thresholdReact = 5
 
         reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1], thresholdReact,
                                               mols_neg_id, expConc)
 
-        simulator.directMethod(stoich_matrix, t, xi[0, :], reaction_rates, 1000)
+        simulator.directMethod(stoich_matrix, t, xi[0, :], reaction_rates, 3000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
