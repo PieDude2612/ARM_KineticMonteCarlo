@@ -164,23 +164,62 @@ class simulator():
 
             if ((rxnCount + 1) >= max_output_length):  # If time allocated is still not exceeded and loop
                 t = T[1:rxnCount]
-                plt.figure(1)
-                plt.xlabel("Time (s)")
-                plt.ylabel("Molecules")
+                graphs = 1
+                colorTally = 0
+                species = 0
+                limit = 0
 
-                for species in range(num_species):
-                    plt.plot(t, X[0:(rxnCount - 1), species])
+                fig = plt.figure(1)
+                # Since the graph legend only has 10 colors in store, they are repeated making it hard to read
+                # graph. So I designed something that will create separate graphs everytime 10 colours are used
+                # This way it is easier to keep track of stuff
 
-                plt.show()
+                while(colorTally < num_species):
+                    if(num_species - colorTally < 10):
+                        limit = limit + (num_species - colorTally)
+                    else:
+                        limit = limit + 10
+
+                    while(species < limit):
+                        ax = fig.add_subplot(1, 3, graphs)
+                        ax.plot(t, X[0:(rxnCount - 1), species], label='x' + str(species))
+                        species = species + 1
+
+                    colorTally = colorTally + 10
+                    graphs = graphs + 1
+                    plt.xlabel("Time (s)")
+                    plt.ylabel("Molecules")
+                    plt.legend(loc='upper right')
+                    plt.show()
 
                 raise Exception("Simulation terminated because max output length has been reached.")
                 break
 
         t = T[1:rxnCount]
-        plt.xlabel("Time (s)")
-        plt.ylabel("Molecules")
+        graphs = 1
+        colorTally = 0
+        species = 0
+        limit = 0
 
-        for species in range(2):
-            plt.plot(t, X[0:(rxnCount - 1), species])
+        fig = plt.figure(1)
+        # Since the graph legend only has 10 colors in store, they are repeated making it hard to read
+        # graph. So I designed something that will create separate graphs everytime 10 colours are used
+        # This way it is easier to keep track of stuff
 
-        plt.show()
+        while (colorTally < num_species):
+            if (num_species - colorTally < 10):
+                limit = limit + (num_species - colorTally)
+            else:
+                limit = limit + 10
+
+            while (species < limit):
+                ax = fig.add_subplot(1, 3, graphs)
+                ax.plot(t, X[0:(rxnCount - 1), species], label='x' + str(species))
+                species = species + 1
+
+            colorTally = colorTally + 10
+            graphs = graphs + 1
+            plt.xlabel("Time (s)")
+            plt.ylabel("Molecules")
+            plt.legend(loc='upper right')
+            plt.show()
