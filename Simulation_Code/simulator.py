@@ -4,6 +4,12 @@ from matplotlib import pyplot as plt
 from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
 
+# TODO: Call reaction calc on every MD separately
+#  Master table of union reaction of [numerator, denominator]
+#  Keep track of right indices of reactions in separate MD
+#  Master dictionary plus master table of reaction links (Union to MD file)
+#  Run reacRatesCalc for each file and fill entire column
+#  Add up numerators and denominators, 0 if no repeat over any other file
 
 class simulator():
 
