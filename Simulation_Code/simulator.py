@@ -3,6 +3,7 @@ import math
 from matplotlib import pyplot as plt
 from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
+from Simulation_Code.dataSetLoader import dataSetLoader
 
 # TODO: Call reaction calc on every MD separately
 #  Master table of union reaction of [numerator, denominator]
@@ -13,117 +14,50 @@ from Simulation_Code.reacRatesCalc import reacRatesCalc
 
 class simulator():
 
-    def startup(self):
-        # import all data from external files
-        all_data = np.loadtxt(
-            open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all.dat', 'r'),
-            usecols=range(3))
-        rows = (all_data[:, 0]).astype(int)
-        cols = (all_data[:, 1]).astype(int)
-        mols = (all_data[:, 2]).astype(int)
-
-        mols_pos = np.array([]).astype(int)
-        rows_neg = np.array([]).astype(int)
-        cols_neg = np.array([]).astype(int)
-        for n in range(len(mols)):
-            if (mols[n] < 0):
-                mols_pos = np.append(mols_pos, np.absolute(mols[n]))
-                rows_neg = np.append(rows_neg, rows[n])
-                cols_neg = np.append(cols_neg, cols[n])
-
-        stoich_matrix = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
-        stoich_pos = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
-
-        for index in range(len(rows)):  # load data into actual sm
-            sparr = rows[index] - 1
-            sparc = cols[index] - 1
-            sparv = mols[index]
-
-            stoich_matrix[sparr, sparc] = sparv
-
-        for indexx in range(len(rows_neg)):
-            sparr_pos = rows_neg[indexx] - 1
-            sparc_pos = cols_neg[indexx] - 1
-            sparv_pos = mols_pos[indexx]
-
-            stoich_pos[sparr_pos, sparc_pos] = sparv_pos
-
-        mols_neg_id = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
-        expConc = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
-
-        for r in range(stoich_matrix.shape[0]):
-            ind = 0
-            for c in range(stoich_matrix.shape[1]):
-                if (stoich_matrix[r, c] < 0):
-                    exponent = 0
-                    for num in range(np.absolute(stoich_matrix[r, c])):
-                        mols_neg_id[r, ind] = c + 1
-                        #have to append ID as many times as exponent for math
-                        expConc[r, ind] = exponent
-                        #need to go from 0 to whatever exponent for math
-                        exponent = exponent + 1
-                        ind = ind + 1
-
-        all_data = None
-        rows = None
-        cols = None
-        mols = None
-        mols_pos = None
-        rows_neg = None
-        cols_neg = None
-
-        all_data = np.loadtxt(
-            open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_1.dat', 'r'),
-            usecols=range(3))
-        rows = (all_data[:, 0]).astype(int)
-        cols = (all_data[:, 1]).astype(int)
-        mols = (all_data[:, 2]).astype(int)
-
-        xi = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
-
-        index = 0
-
-        while (index < (len(rows) - 1)):  # load data into actual xi
-            sparr = rows[index] - 1
-            sparc = cols[index] - 1
-            sparv = mols[index]
-            xi[sparr, sparc] = sparv
-            index = index + 1
-
-        all_data = None
-        rows = None
-        cols = None
-        mols = None
-
-        all_data = np.loadtxt(
-            open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_1.dat', 'r'),
-            usecols=range(3))
-        timestep = (all_data[:, 0]).astype(int)
-        reacNum = (all_data[:, 1]).astype(int)
-        reacCount = (all_data[:, 2]).astype(int)
-
-        rfpc = np.zeros((np.amax(timestep), np.amax(reacNum))).astype(int)
-
-        for tsp in range(len(timestep)):
-            rfpc[timestep[tsp] - 1, reacNum[tsp] - 1] = reacCount[tsp]
-
-        all_data = None
-        timestep = None
-        reacNum = None
-        reacCount = None
-
-        # recycle the variables to reduce total memory allocated in the loading process by clearing all data from vars
-        # every time the matrices have been loaded
-
-        nA = 6.023e23
-        volu = 1e-15
+    def startup(totalFiles):
         t = np.array([0, 20000])
         thresholdReact = 5
+        count = 0
+        listofKeys = np.array([])
+        masterArr = np.array([])
+        masterArrIndices = np.array([])
+        listofKeys = np.append(listofKeys, 'Master')
 
-        reaction_rates = reacRatesCalc.calcrr(xi, rfpc, stoich_matrix, stoich_pos, t[0], t[1], thresholdReact,
-                                              mols_neg_id, expConc)
+        for filenum in range(totalFiles + 1):
+            listofKeys = np.append(listofKeys, 'MD' + str(filenum + 1) + 'TH')
+            listofKeys = np.append(listofKeys, 'MD' + str(filenum + 1) + 'TP')
+        listofKeys = np.append(listofKeys, 'Final Reaction Rate Constants')
 
-        simulator.directMethod(stoich_matrix, t, xi[0, :], reaction_rates, 3000)
+        master = dict.fromkeys(listofKeys, 0)
+
+        for filenum in range(totalFiles + 1):
+            reacdictN = str(np.loadtxt(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
+                                    + str(filenum + 1) + '.dat', 'r')))
+            for reac in range(len(reacdictN)):
+                if((reacdictN[reac] != any(masterArr))):
+                    masterArr = np.append(masterArr, reacdictN[reac])
+                    masterArrIndices = np.append(masterArrIndices, count)
+                    count = count + 1
+
+            master['Master'] = masterArrIndices
+            dataSetLoader.loadFiles(filenum + 1)
+            timesHapp, timesPoss = reacRatesCalc.calcrr(dataSetLoader.xi, dataSetLoader.rfpc,
+                                                    dataSetLoader.stoich_matrix, dataSetLoader.stoich_pos,
+                                                    t[0], t[1], thresholdReact, dataSetLoader.mols_neg_id,
+                                                    dataSetLoader.expConc)
+            timesHappened = np.array([len(timesHapp)])
+            timesPossible = np.array([len(timesPoss)])
+
+            for ind in range (masterArr):
+                timesHappened[ind] = timesHapp[reacdictN.index(masterArr[ind])]
+                timesPossible[ind] = timesPoss[reacdictN.index(masterArr[ind])]
+
+
+            master['MD' + str(filenum + 1) +'TH'] = timesHappened
+            master['MD' + str(filenum + 1) + 'TP'] = timesPossible
+        #TODO: Add up the TH and TP to fill in final constants key in dict. This will conclude the master table
+
+        simulator.directMethod(dataSetLoader.stoich_matrix, t, dataSetLoader.xi[0, :], master['Final Reaction Rate Constants'], 3000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]

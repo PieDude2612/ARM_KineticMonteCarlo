@@ -65,4 +65,4 @@ class reacRatesCalc():
             print("Error. Some k values are too large.")
             sys.exit()
 
-        return reactRates
+        return timesHappened, timesPossible
