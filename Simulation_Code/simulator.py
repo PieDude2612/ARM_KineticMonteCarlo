@@ -5,30 +5,30 @@ from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
 from Simulation_Code.dataSetLoader import dataSetLoader
 
-# TODO: Call reaction calc on every MD separately
-#  Master table of union reaction of [numerator, denominator]
-#  Keep track of right indices of reactions in separate MD
-#  Master dictionary plus master table of reaction links (Union to MD file)
-#  Run reacRatesCalc for each file and fill entire column
-#  Add up numerators and denominators, 0 if no repeat over any other file
+# TODO: Edit the stoich_matrix and xi matrix to send to propensity function.
 
 class simulator():
 
     def startup(totalFiles):
         t = np.array([0, 20000])
         thresholdReact = 5
-        count = 0
-        listofKeys = np.array([])
         masterArr = np.array([])
-        masterArrIndices = np.array([])
-        listofKeys = np.append(listofKeys, 'Master')
 
-        for filenum in range(totalFiles + 1):
-            listofKeys = np.append(listofKeys, 'MD' + str(filenum + 1) + 'TH')
-            listofKeys = np.append(listofKeys, 'MD' + str(filenum + 1) + 'TP')
-        listofKeys = np.append(listofKeys, 'Final Reaction Rate Constants')
+        # count = 0
+        # listofKeys = np.array([])
+        # masterArrIndices = np.array([])
+        # listofKeys = np.append(listofKeys, 'Master')
+        #
+        # for filenum in range(totalFiles + 1):
+        #     listofKeys = np.append(listofKeys, 'MD' + str(filenum + 1) + 'TH')
+        #     listofKeys = np.append(listofKeys, 'MD' + str(filenum + 1) + 'TP')
+        # listofKeys = np.append(listofKeys, 'Final Reaction Rate Constants')
+        #
+        # master = dict.fromkeys(listofKeys, 0)
 
-        master = dict.fromkeys(listofKeys, 0)
+        reactionRateConstants = np.array([])
+        finalTimesHapp = np.array([])
+        finalTimesPoss = np.array([])
 
         for filenum in range(totalFiles + 1):
             reacdictN = str(np.loadtxt(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
@@ -36,28 +36,38 @@ class simulator():
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] != any(masterArr))):
                     masterArr = np.append(masterArr, reacdictN[reac])
-                    masterArrIndices = np.append(masterArrIndices, count)
-                    count = count + 1
+                    # masterArrIndices = np.append(masterArrIndices, count)
+                    # count = count + 1
 
-            master['Master'] = masterArrIndices
+            # master['Master'] = masterArrIndices
             dataSetLoader.loadFiles(filenum + 1)
             timesHapp, timesPoss = reacRatesCalc.calcrr(dataSetLoader.xi, dataSetLoader.rfpc,
                                                     dataSetLoader.stoich_matrix, dataSetLoader.stoich_pos,
                                                     t[0], t[1], thresholdReact, dataSetLoader.mols_neg_id,
                                                     dataSetLoader.expConc)
-            timesHappened = np.array([len(timesHapp)])
-            timesPossible = np.array([len(timesPoss)])
+            timesHappened = np.array([])
+            timesPossible = np.array([])
 
-            for ind in range (masterArr):
-                timesHappened[ind] = timesHapp[reacdictN.index(masterArr[ind])]
-                timesPossible[ind] = timesPoss[reacdictN.index(masterArr[ind])]
+            for ind in range(len(masterArr)): # rearrange reactions for final alignment
+                try:
+                    timesHappened = np.append(timesHappened, timesHapp[reacdictN.index(masterArr[ind])])
+                    timesPossible = np.append(timesPossible, timesPoss[reacdictN.index(masterArr[ind])])
+                except AttributeError:
+                    timesHappened = np.append(timesHappened, 0)
+                    timesPossible = np.append(timesPossible, 0)
 
 
-            master['MD' + str(filenum + 1) +'TH'] = timesHappened
-            master['MD' + str(filenum + 1) + 'TP'] = timesPossible
-        #TODO: Add up the TH and TP to fill in final constants key in dict. This will conclude the master table
+            # master['MD' + str(filenum + 1) +'TH'] = timesHappened
+            # master['MD' + str(filenum + 1) + 'TP'] = timesPossible
 
-        simulator.directMethod(dataSetLoader.stoich_matrix, t, dataSetLoader.xi[0, :], master['Final Reaction Rate Constants'], 3000)
+            finalTimesHapp = finalTimesHapp + timesHappened # calculate final constants
+            finalTimesPoss = finalTimesPoss + timesPossible
+
+        for reaction in range(len(finalTimesPoss)):
+            reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
+        # master['Final Reaction Rate Constants'] = reactionRateConstants
+
+        simulator.directMethod(dataSetLoader.stoich_matrix, t, dataSetLoader.xi[0, :], reactionRateConstants, 3000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
