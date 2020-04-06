@@ -4,7 +4,7 @@ from Simulation_Code import simulator
 class dataSetLoader(simulator):
 
     def loadFiles(fileNumber):
-        all_data = np.loadtxt(
+        all_data = np.load(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all' + str(fileNumber) + '.dat', 'r'),
             usecols=range(3))
         rows = (all_data[:, 0]).astype(int)
@@ -61,7 +61,7 @@ class dataSetLoader(simulator):
         rows_neg = None
         cols_neg = None
 
-        all_data = np.loadtxt(
+        all_data = np.load(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_' + str(fileNumber) + '.dat',
                  'r'),
             usecols=range(3))
@@ -70,7 +70,6 @@ class dataSetLoader(simulator):
         mols = (all_data[:, 2]).astype(int)
 
         xi = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
-
         index = 0
 
         while (index < (len(rows) - 1)):  # load data into actual xi
@@ -85,7 +84,7 @@ class dataSetLoader(simulator):
         cols = None
         mols = None
 
-        all_data = np.loadtxt(
+        all_data = np.load(
             open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_' + str(fileNumber) + '.dat', 'r'),
             usecols=range(3))
         timestep = (all_data[:, 0]).astype(int)

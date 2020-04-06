@@ -5,25 +5,29 @@ from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
 from Simulation_Code.dataSetLoader import dataSetLoader
 
-# TODO: Edit the stoich_matrix to send to propensity function.
+# TODO: Edit the stoich_matrix and X matrix to send to propensity function.
 
 class simulator():
 
-    def startup(totalFiles):
+    def startup(totalFiles, simTime):
         t = np.array([0, 20000])
         thresholdReact = 5
+        totalLength = 0
+
         masterReactionArr = np.array([])
         masterMoleculeArr = np.array([])
         reactionRateConstants = np.array([])
         finalTimesHapp = np.array([])
         finalTimesPoss = np.array([])
-        finalMD = np.array([])
+        finalMD = np.zeros((simTime, totalLength))
 
         for filenum in range(totalFiles + 1):
-            reacdictN = str(np.loadtxt(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
+            reacdictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
                                     + str(filenum + 1) + '.dat', 'r')))
-            moledictN = str(np.loadtxt(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
+            moledictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
                                     + str(filenum + 1) + '.dat', 'r')))
+            totalLength = totalLength + len(moledictN)
+            finalMD = np.append(finalMD, totalLength - finalMD.shape[1], axis=1)
 
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] is not any(masterReactionArr))):
@@ -38,20 +42,19 @@ class simulator():
                                                     t[0], t[1], thresholdReact, dataSetLoader.mols_neg_id,
                                                     dataSetLoader.expConc)
 
+            timesHappened = np.array([])
+            timesPossible = np.array([])
             for ind in range(len(masterReactionArr)): # rearrange reactions for final alignment
                 try:
-                    finalTimesHapp = np.append(finalTimesHapp, timesHapp[reacdictN.index(masterReactionArr[ind])])
-                    finalTimesPoss = np.append(finalTimesPoss, timesPoss[reacdictN.index(masterReactionArr[ind])])
+                    timesHappened = np.append(timesHappened, timesHapp[reacdictN.index(masterReactionArr[ind])])
+                    timesPossible = np.append(timesPossible, timesPoss[reacdictN.index(masterReactionArr[ind])])
                 except AttributeError:
-                    finalTimesHapp = np.append(finalTimesHapp, 0)
-                    finalTimesPoss = np.append(finalTimesPoss, 0)
-            for ind in range(len(masterMoleculeArr)):
-                try:
-                    finalMD = np.append(finalMD, dataSetLoader.xi[moledictN.index(masterMoleculeArr[ind])])
-                except AttributeError:
-                    finalMD = np.append(finalMD, 0)
+                    timesHappened = np.append(timesHappened, 0)
+                    timesPossible = np.append(timesPossible, 0)
 
-            dataSetLoader.xi = finalMD
+            finalTimesHapp = finalTimesHapp + timesHappened
+            finalTimesPoss = finalTimesPoss + timesPossible
+
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
 
