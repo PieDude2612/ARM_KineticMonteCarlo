@@ -1,6 +1,7 @@
 import numpy as np
+from Simulation_Code import simulator
 
-class dataSetLoader():
+class dataSetLoader(simulator):
 
     def loadFiles(fileNumber):
         all_data = np.loadtxt(
