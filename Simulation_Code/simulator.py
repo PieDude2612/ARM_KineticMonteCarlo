@@ -23,8 +23,6 @@ class simulator():
             reacdictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
                                     + str(filenum + 1) + '.dat', 'r')))
             # find the file, which should be named a certain way
-            referenceStoichMat = dataSetLoader.loadStoichMat(filenum)
-            rearrangeSMIndices = np.array([])
 
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] is not any(masterReactionArr))):
@@ -75,13 +73,16 @@ class simulator():
 
             dataSetLoader.xi = referenceMD
 #######################################################################################################################
-
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
 
         finalMD = np.array([t[1], len(masterMoleculeArr)])
         for files in range(totalFiles):
             finalMD = finalMD + dataSetLoader.loadMDFile(files)
+
+        masterStoichMat = np.array([reactionRateConstants.shape[0], finalMD.shape[1]])
+        # Finish the master sm. Call the startup recursively. Match each reaction with molecules involved
+        # Use the master reaction array and molecule arrays
 
         simulator.directMethod(dataSetLoader.stoich_matrix, t, finalMD[0, :], reactionRateConstants, 3000)
 
