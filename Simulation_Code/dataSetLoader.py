@@ -104,3 +104,54 @@ class dataSetLoader(simulator):
         # recycle the variables to reduce total memory allocated in the loading process by clearing all data from vars
         # every time the matrices have been loaded
 
+    def loadMDFile(theFile):
+        all_data = np.load(
+            open(
+                'D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_' + str(theFile) + '.dat',
+                'r'),
+            usecols=range(3))
+        rows = (all_data[:, 0]).astype(int)
+        cols = (all_data[:, 1]).astype(int)
+        mols = (all_data[:, 2]).astype(int)
+
+        xi = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
+        index = 0
+
+        while (index < (len(rows) - 1)):  # load data into actual xi
+            sparr = rows[index] - 1
+            sparc = cols[index] - 1
+            sparv = mols[index]
+            xi[sparr, sparc] = sparv
+            index = index + 1
+
+        all_data = None
+        rows = None
+        cols = None
+        mols = None
+
+        return xi
+
+    def loadStoichMat(theFile):
+        all_data = np.load(
+            open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all' + str(theFile) + '.dat',
+                 'r'),
+            usecols=range(3))
+        rows = (all_data[:, 0]).astype(int)
+        cols = (all_data[:, 1]).astype(int)
+        mols = (all_data[:, 2]).astype(int)
+
+        stoich_matrix = np.zeros((np.amax(rows), np.amax(cols))).astype(int)
+
+        for index in range(len(rows)):  # load data into actual sm
+            sparr = rows[index] - 1
+            sparc = cols[index] - 1
+            sparv = mols[index]
+
+            stoich_matrix[sparr, sparc] = sparv
+
+        all_data = None
+        rows = None
+        cols = None
+        mols = None
+
+        return stoich_matrix

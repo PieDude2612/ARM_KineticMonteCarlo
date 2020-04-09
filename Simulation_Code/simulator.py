@@ -5,42 +5,38 @@ from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
 from Simulation_Code.dataSetLoader import dataSetLoader
 
-# TODO: Edit the stoich_matrix and X matrix to send to propensity function.
+# TODO: Edit the stoich_matrix to send to propensity function.
 
 class simulator():
 
     def startup(totalFiles, simTime):
-        t = np.array([0, 20000])
+        t = np.array([0, simTime])
         thresholdReact = 5
-        totalLength = 0
 
         masterReactionArr = np.array([])
         masterMoleculeArr = np.array([])
         reactionRateConstants = np.array([])
         finalTimesHapp = np.array([])
         finalTimesPoss = np.array([])
-        finalMD = np.zeros((simTime, totalLength))
-
+#######################################################################################################################
         for filenum in range(totalFiles + 1):
             reacdictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
                                     + str(filenum + 1) + '.dat', 'r')))
-            moledictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
-                                    + str(filenum + 1) + '.dat', 'r')))
-            totalLength = totalLength + len(moledictN)
-            finalMD = np.append(finalMD, totalLength - finalMD.shape[1], axis=1)
+            # find the file, which should be named a certain way
+            referenceStoichMat = dataSetLoader.loadStoichMat(filenum)
+            rearrangeSMIndices = np.array([])
 
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] is not any(masterReactionArr))):
                     masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
-            for reac in range(len(moledictN)):
-                if((moledictN[reac] is not any(masterMoleculeArr))):
-                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
+            # loading processes for reaction and molecule dictionaries
 
             dataSetLoader.loadFiles(filenum + 1)
             timesHapp, timesPoss = reacRatesCalc.calcrr(dataSetLoader.xi, dataSetLoader.rfpc,
                                                     dataSetLoader.stoich_matrix, dataSetLoader.stoich_pos,
                                                     t[0], t[1], thresholdReact, dataSetLoader.mols_neg_id,
                                                     dataSetLoader.expConc)
+            # get the reaction rate constants for each MD file
 
             timesHappened = np.array([])
             timesPossible = np.array([])
@@ -54,11 +50,40 @@ class simulator():
 
             finalTimesHapp = finalTimesHapp + timesHappened
             finalTimesPoss = finalTimesPoss + timesPossible
+#######################################################################################################################
+            moledictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
+                                         + str(filenum + 1) + '.dat', 'r')))
+            for reac in range(len(moledictN)):
+                if((moledictN[reac] is not any(masterMoleculeArr))):
+                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
+
+            referenceMD = dataSetLoader.loadMDFile(filenum)
+            rearrangeMDIndices = np.array([])
+            speciesCount = 0
+            for ind in range(len(masterMoleculeArr)):
+                try:
+                    rearrangeMDIndices = np.append(rearrangeMDIndices, moledictN.index(masterMoleculeArr[ind]) + 1)
+                except AttributeError:
+                    rearrangeMDIndices = np.append(rearrangeMDIndices, 0)
+
+                if(rearrangeMDIndices[speciesCount] - 1 >= 0):
+                    referenceMD[:, speciesCount] = dataSetLoader.xi[:, rearrangeMDIndices[speciesCount] - 1]
+                    speciesCount = speciesCount + 1
+                else:
+                    referenceMD[:, speciesCount] = 0
+                    speciesCount = speciesCount + 1
+
+            dataSetLoader.xi = referenceMD
+#######################################################################################################################
 
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
 
-        simulator.directMethod(dataSetLoader.stoich_matrix, t, dataSetLoader.xi[0, :], reactionRateConstants, 3000)
+        finalMD = np.array([t[1], len(masterMoleculeArr)])
+        for files in range(totalFiles):
+            finalMD = finalMD + dataSetLoader.loadMDFile(files)
+
+        simulator.directMethod(dataSetLoader.stoich_matrix, t, finalMD[0, :], reactionRateConstants, 3000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
