@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
 from Simulation_Code.dataSetLoader import dataSetLoader
+from Simulation_Code.matchNcreate import matchNcreate
 
 # TODO: Edit the stoich_matrix to send to propensity function.
 
@@ -53,38 +54,18 @@ class simulator():
                                          + str(filenum + 1) + '.dat', 'r')))
             for reac in range(len(moledictN)):
                 if((moledictN[reac] is not any(masterMoleculeArr))):
-                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
-
-            referenceMD = dataSetLoader.loadMDFile(filenum)
-            rearrangeMDIndices = np.array([])
-            speciesCount = 0
-            for ind in range(len(masterMoleculeArr)):
-                try:
-                    rearrangeMDIndices = np.append(rearrangeMDIndices, moledictN.index(masterMoleculeArr[ind]) + 1)
-                except AttributeError:
-                    rearrangeMDIndices = np.append(rearrangeMDIndices, 0)
-
-                if(rearrangeMDIndices[speciesCount] - 1 >= 0):
-                    referenceMD[:, speciesCount] = dataSetLoader.xi[:, rearrangeMDIndices[speciesCount] - 1]
-                    speciesCount = speciesCount + 1
-                else:
-                    referenceMD[:, speciesCount] = 0
-                    speciesCount = speciesCount + 1
-
-            dataSetLoader.xi = referenceMD
+                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac]) # find distinct molecules
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
 
-        finalMD = np.array([t[1], len(masterMoleculeArr)])
-        for files in range(totalFiles):
-            finalMD = finalMD + dataSetLoader.loadMDFile(files)
+        masterStoichMat = np.array([len(masterReactionArr), len(masterMoleculeArr)])
+        matchNcreate.doStringMatch(masterStoichMat, masterReactionArr, masterMoleculeArr)
+        # Use the class method and re package to match and create the final stoich matrix as Dr. Yang said
+        # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
+        # Already know the length of the master SM so this should be easy to index.
 
-        masterStoichMat = np.array([reactionRateConstants.shape[0], finalMD.shape[1]])
-        # Finish the master sm. Call the startup recursively. Match each reaction with molecules involved
-        # Use the master reaction array and molecule arrays
-
-        simulator.directMethod(dataSetLoader.stoich_matrix, t, finalMD[0, :], reactionRateConstants, 3000)
+        simulator.directMethod(dataSetLoader.stoich_matrix, t, dataSetLoader.xi, reactionRateConstants, 3000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
