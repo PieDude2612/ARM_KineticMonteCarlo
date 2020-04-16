@@ -6,8 +6,6 @@ from Simulation_Code.reacRatesCalc import reacRatesCalc
 from Simulation_Code.dataSetLoader import dataSetLoader
 from Simulation_Code.matchNcreate import matchNcreate
 
-# TODO: Edit the stoich_matrix to send to propensity function.
-
 class simulator():
 
     def startup(totalFiles, simTime):
@@ -59,13 +57,12 @@ class simulator():
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
 
-        masterStoichMat = np.array([len(masterReactionArr), len(masterMoleculeArr)])
-        matchNcreate.doStringMatch(masterStoichMat, masterReactionArr, masterMoleculeArr)
+        masterStoichMat = matchNcreate.doStringMatch(masterReactionArr, masterMoleculeArr)
         # Use the class method and re package to match and create the final stoich matrix as Dr. Yang said
         # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
         # Already know the length of the master SM so this should be easy to index.
 
-        simulator.directMethod(dataSetLoader.stoich_matrix, t, dataSetLoader.xi, reactionRateConstants, 3000)
+        simulator.directMethod(masterStoichMat, t, dataSetLoader.xi, reactionRateConstants, 3000)
 
     def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
