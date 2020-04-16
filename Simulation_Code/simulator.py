@@ -62,9 +62,9 @@ class simulator():
         # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
         # Already know the length of the master SM so this should be easy to index.
 
-        simulator.directMethod(masterStoichMat, t, dataSetLoader.xi, reactionRateConstants, 3000)
+        simulator.iterateNplot(masterStoichMat, t, dataSetLoader.xi, reactionRateConstants, 3000)
 
-    def directMethod(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
+    def iterateNplot(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
         X = np.zeros((max_output_length, num_species))  # molecules that exist over time
