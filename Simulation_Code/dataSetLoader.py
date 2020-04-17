@@ -1,12 +1,12 @@
 import numpy as np
-from Simulation_Code import simulator
 
-class dataSetLoader(simulator):
+class dataSetLoader():
 
     def loadFiles(fileNumber):
-        all_data = np.load(
-            open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all' + str(fileNumber) + '.dat', 'r'),
-            usecols=range(3))
+        theData = open(
+            'D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all' + str(fileNumber) + '.dat', 'r')
+        all_data = np.array(theData.readlines())
+        # TODO: Finish correct formatting and loading of all_data
         rows = (all_data[:, 0]).astype(int)
         cols = (all_data[:, 1]).astype(int)
         mols = (all_data[:, 2]).astype(int)

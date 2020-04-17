@@ -19,12 +19,13 @@ class simulator():
         finalTimesPoss = np.array([])
 #######################################################################################################################
         for filenum in range(totalFiles + 1):
-            reacdictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
-                                    + str(filenum + 1) + '.dat', 'r')))
+            theReacsFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
+                                    + str(filenum + 1) + '.dat', 'r')
+            reacdictN = theReacsFile.readlines()
             # find the file, which should be named a certain way
 
             for reac in range(len(reacdictN)):
-                if((reacdictN[reac] is not any(masterReactionArr))):
+                if((reacdictN[reac] is not all(masterReactionArr))):
                     masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
             # loading processes for reaction and molecule dictionaries
 
@@ -48,8 +49,9 @@ class simulator():
             finalTimesHapp = finalTimesHapp + timesHappened
             finalTimesPoss = finalTimesPoss + timesPossible
 #######################################################################################################################
-            moledictN = str(np.load(open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
-                                         + str(filenum + 1) + '.dat', 'r')))
+            theMolesFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
+                                         + str(filenum + 1) + '.dat', 'r')
+            moledictN = theMolesFile.readlines()
             for reac in range(len(moledictN)):
                 if((moledictN[reac] is not any(masterMoleculeArr))):
                     masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac]) # find distinct molecules
