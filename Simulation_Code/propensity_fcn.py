@@ -2,7 +2,7 @@ import numpy as np
 
 class propensity_fcn():
 
-    def calc_propensity(stoichmat, xarr, rp):
+    def calc_propensity(self, stoichmat, xarr, rp):
         # determine if reaction passed is uni, bi, or tri molecular.
         # determine if it is a forward or reverse reaction.
 
@@ -16,12 +16,12 @@ class propensity_fcn():
             for col in range(numCols):
                 stoichs = np.append(stoichs, stoichmat[row, col])
 
-            propArr = np.append(propArr, propensity_fcn.findSectionPropensity(stoichs, xarr, rp[i]))
+            propArr = np.append(propArr, propensity_fcn.findSectionPropensity(propensity_fcn(), stoichs, xarr, rp[i]))
             i = i + 1
 
         return propArr
 
-    def findSectionPropensity(stoich, x, rateparam):
+    def findSectionPropensity(self, stoich, x, rateparam):
         negatives = np.array([])
         val = np.array([])
         i = 0

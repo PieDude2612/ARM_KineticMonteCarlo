@@ -8,40 +8,48 @@ from Simulation_Code.matchNcreate import matchNcreate
 
 class simulator():
 
-    def startup(totalFiles, simTime):
+    def startup(self, totalFiles, simTime):
         t = np.array([0, simTime])
         thresholdReact = 5
 
-        masterReactionArr = np.array([])
-        masterMoleculeArr = np.array([])
+        masterReactionArr = np.array([]).astype(str)
+        masterMoleculeArr = np.array([]).astype(str)
         reactionRateConstants = np.array([])
-        finalTimesHapp = np.array([])
-        finalTimesPoss = np.array([])
+
+        dictofdicts = dict()
+        keys = np.array([])
+        for i in range(totalFiles + 1): keys = np.append(keys, i + 1)
+        dictofdicts.fromkeys(keys)
 #######################################################################################################################
-        for filenum in range(totalFiles + 1):
+        for filenum in range(totalFiles):
             theReacsFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
                                     + str(filenum + 1) + '.dat', 'r')
             reacdictN = theReacsFile.readlines()
+            dictofdicts[filenum] = reacdictN
             # find the file, which should be named a certain way
 
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] is not all(masterReactionArr))):
                     masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
             # loading processes for reaction and molecule dictionaries
-
-            dataSetLoader.loadFiles(filenum + 1)
-            timesHapp, timesPoss = reacRatesCalc.calcrr(dataSetLoader.xi, dataSetLoader.rfpc,
-                                                    dataSetLoader.stoich_matrix, dataSetLoader.stoich_pos,
-                                                    t[0], t[1], thresholdReact, dataSetLoader.mols_neg_id,
-                                                    dataSetLoader.expConc)
+        finalTimesHapp = np.zeros((len(masterReactionArr)))
+        finalTimesPoss = np.array((len(masterReactionArr)))
+        for filenum in range(totalFiles):
+            timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filenum + 1),
+                                                        dataSetLoader.rpfc(dataSetLoader(), filenum + 1),
+                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 1),
+                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 2),
+                                                        t[0], t[1], thresholdReact,
+                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 3),
+                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 4))
             # get the reaction rate constants for each MD file
 
             timesHappened = np.array([])
             timesPossible = np.array([])
             for ind in range(len(masterReactionArr)): # rearrange reactions for final alignment
                 try:
-                    timesHappened = np.append(timesHappened, timesHapp[reacdictN.index(masterReactionArr[ind])])
-                    timesPossible = np.append(timesPossible, timesPoss[reacdictN.index(masterReactionArr[ind])])
+                    timesHappened = np.append(timesHappened, timesHapp[dictofdicts[filenum].index(masterReactionArr[ind])])
+                    timesPossible = np.append(timesPossible, timesPoss[dictofdicts[filenum].index(masterReactionArr[ind])])
                 except AttributeError:
                     timesHappened = np.append(timesHappened, 0)
                     timesPossible = np.append(timesPossible, 0)
@@ -57,16 +65,16 @@ class simulator():
                     masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac]) # find distinct molecules
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
-            reactionRateConstants = np.append(reactionRateConstants, (finalTimesHapp[reaction] / finalTimesPoss[reaction]))
+            reactionRateConstants = np.append(reactionRateConstants, ((finalTimesHapp[reaction] / finalTimesPoss[reaction]) / 0.012))
 
-        masterStoichMat = matchNcreate.doStringMatch(masterReactionArr, masterMoleculeArr)
+        masterStoichMat = matchNcreate.doStringMatch(matchNcreate(), masterReactionArr, masterMoleculeArr)
         # Use the class method and re package to match and create the final stoich matrix as Dr. Yang said
         # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
         # Already know the length of the master SM so this should be easy to index.
 
-        simulator.iterateNplot(masterStoichMat, t, dataSetLoader.xi, reactionRateConstants, 3000)
+        simulator.iterateNplot(simulator(), masterStoichMat, t, dataSetLoader.xi(1), reactionRateConstants, 3000)
 
-    def iterateNplot(stoich_matrix, tspan, x0, reaction_rates, max_output_length):
+    def iterateNplot(self, stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
         X = np.zeros((max_output_length, num_species))  # molecules that exist over time
@@ -80,7 +88,7 @@ class simulator():
         while (T[rxnCount] < tspan[1]):  # as long as the time step stays within allocated time
             a = np.double([])
 
-            a = propensity_fcn.calc_propensity(stoich_matrix, X[rxnCount, :], reaction_rates)
+            a = propensity_fcn.calc_propensity(propensity_fcn(), stoich_matrix, X[rxnCount, :], reaction_rates)
             asum = np.sum(a)  # take the entire sum of the prop function
 
             # a = np.append(a, reaction_rates[0] * X[rxnCount, 0] * X[rxnCount, 1])

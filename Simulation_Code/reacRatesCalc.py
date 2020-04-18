@@ -1,10 +1,9 @@
 import numpy as np
 import math
 import sys
-
 # rows are reactions. columns are species involved in the reaction
 class reacRatesCalc():
-    def calcrr(x0, reactperFrame, stoich_mat, stoich_mat_pos, startFrame, endFrame, rarereactLimit, negativeID,
+    def calcrr(self, x0, reactperFrame, stoich_mat, stoich_mat_pos, startFrame, endFrame, rarereactLimit, negativeID,
                concenExp):
         ireactmat = negativeID  # negative indices from stoich matrix
         concexp = concenExp  # values in the negative indices from stoich matrix (in n-1 power)
