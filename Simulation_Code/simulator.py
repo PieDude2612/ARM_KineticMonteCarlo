@@ -30,7 +30,7 @@ class simulator():
 
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] is not all(masterReactionArr))):
-                    masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
+                    masterReactionArr = np.append(masterReactionArr, reacdictN[reac].replace('\n', ''))
             # loading processes for reaction and molecule dictionaries
         finalTimesHapp = np.zeros((len(masterReactionArr)))
         finalTimesPoss = np.array((len(masterReactionArr)))
@@ -50,6 +50,9 @@ class simulator():
                 try:
                     timesHappened = np.append(timesHappened, timesHapp[dictofdicts[filenum].index(masterReactionArr[ind])])
                     timesPossible = np.append(timesPossible, timesPoss[dictofdicts[filenum].index(masterReactionArr[ind])])
+                except ValueError:
+                    timesHappened = np.append(timesHappened, 0)
+                    timesPossible = np.append(timesPossible, 0)
                 except AttributeError:
                     timesHappened = np.append(timesHappened, 0)
                     timesPossible = np.append(timesPossible, 0)
@@ -62,12 +65,12 @@ class simulator():
             moledictN = theMolesFile.readlines()
             for reac in range(len(moledictN)):
                 if((moledictN[reac] is not any(masterMoleculeArr))):
-                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac]) # find distinct molecules
+                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac].replace('\n', '')) # find distinct molecules
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, ((finalTimesHapp[reaction] / finalTimesPoss[reaction]) / 0.012))
 
-        masterStoichMat = matchNcreate.doStringMatch(matchNcreate(), masterReactionArr, masterMoleculeArr)
+        masterStoichMat = matchNcreate.doStringMatch(matchNcreate(), list(masterReactionArr), list(masterMoleculeArr))
         # Use the class method and re package to match and create the final stoich matrix as Dr. Yang said
         # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
         # Already know the length of the master SM so this should be easy to index.
