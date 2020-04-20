@@ -34,8 +34,8 @@ class simulator():
                 if((reacdictN[reac] is not all(masterReactionArr))):
                     masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
             # loading processes for reaction and molecule dictionaries
-        finalTimesHapp = np.zeros((len(masterReactionArr))).astype(int)
-        finalTimesPoss = np.zeros((len(masterReactionArr))).astype(int)
+        finalTimesHapp = np.zeros((len(masterReactionArr), 1)).astype(int)
+        finalTimesPoss = np.zeros((len(masterReactionArr), 1)).astype(int)
         for filenum in range(totalFiles):
             timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filenum + 1),
                                                         dataSetLoader.rpfc(dataSetLoader(), filenum + 1),
@@ -76,8 +76,8 @@ class simulator():
         # Use the class method and re package to match and create the final stoich matrix as Dr. Yang said
         # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
         # Already know the length of the master SM so this should be easy to index.
-
-        simulator.iterateNplot(simulator(), masterStoichMat, t, dataSetLoader.xi(dataSetLoader(), 1), reactionRateConstants, 3000)
+        xtoTake = dataSetLoader.xi(dataSetLoader(), 1)
+        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake[0, :], reactionRateConstants, 3000)
 
     def iterateNplot(self, stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
@@ -130,8 +130,8 @@ class simulator():
                     else:
                         limit = limit + 10
 
+                    ax = fig.add_subplot(1, 3, graphs)
                     while(species < limit):
-                        ax = fig.add_subplot(1, 3, graphs)
                         ax.plot(t, X[0:(rxnCount - 1), species], label='x' + str(species))
                         species = species + 1
 
@@ -142,10 +142,9 @@ class simulator():
                     plt.legend(loc='upper right')
                     plt.show()
 
-                    raise Exception("Simulation terminated because max output length has been reached.")
-                break
+                raise Exception("Simulation terminated because max output length has been reached.")
 
-        t = T[1:rxnCount]
+        t = T[0:rxnCount - 1]
         graphs = 1
         colorTally = 0
         species = 0
@@ -162,8 +161,8 @@ class simulator():
             else:
                 limit = limit + 10
 
+            ax = fig.add_subplot(1, 3, graphs)
             while (species < limit):
-                ax = fig.add_subplot(1, 3, graphs)
                 ax.plot(t, X[0:(rxnCount - 1), species], label='x' + str(species))
                 species = species + 1
 
