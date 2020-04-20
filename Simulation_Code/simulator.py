@@ -22,18 +22,20 @@ class simulator():
         dictofdicts.fromkeys(keys)
 #######################################################################################################################
         for filenum in range(totalFiles):
+            reacdictN = np.array([])
             theReacsFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
                                     + str(filenum + 1) + '.dat', 'r')
-            reacdictN = theReacsFile.readlines()
-            dictofdicts[filenum] = reacdictN
+            for line in theReacsFile:
+                reacdictN = np.append(reacdictN, line.replace('\n', ''))
+            dictofdicts[filenum] = list(reacdictN)
             # find the file, which should be named a certain way
 
             for reac in range(len(reacdictN)):
                 if((reacdictN[reac] is not all(masterReactionArr))):
-                    masterReactionArr = np.append(masterReactionArr, reacdictN[reac].replace('\n', ''))
+                    masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
             # loading processes for reaction and molecule dictionaries
-        finalTimesHapp = np.zeros((len(masterReactionArr)))
-        finalTimesPoss = np.array((len(masterReactionArr)))
+        finalTimesHapp = np.zeros((len(masterReactionArr))).astype(int)
+        finalTimesPoss = np.zeros((len(masterReactionArr))).astype(int)
         for filenum in range(totalFiles):
             timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filenum + 1),
                                                         dataSetLoader.rpfc(dataSetLoader(), filenum + 1),
@@ -44,8 +46,8 @@ class simulator():
                                                         dataSetLoader.sms(dataSetLoader(), filenum + 1, 4))
             # get the reaction rate constants for each MD file
 
-            timesHappened = np.array([])
-            timesPossible = np.array([])
+            timesHappened = np.array([]).astype(int)
+            timesPossible = np.array([]).astype(int)
             for ind in range(len(masterReactionArr)): # rearrange reactions for final alignment
                 try:
                     timesHappened = np.append(timesHappened, timesHapp[dictofdicts[filenum].index(masterReactionArr[ind])])
@@ -75,7 +77,7 @@ class simulator():
         # Use split by + and => to get arrays of reactants and products in string form and match to dictionaries
         # Already know the length of the master SM so this should be easy to index.
 
-        simulator.iterateNplot(simulator(), masterStoichMat, t, dataSetLoader.xi(1), reactionRateConstants, 3000)
+        simulator.iterateNplot(simulator(), masterStoichMat, t, dataSetLoader.xi(dataSetLoader(), 1), reactionRateConstants, 3000)
 
     def iterateNplot(self, stoich_matrix, tspan, x0, reaction_rates, max_output_length):
         num_species = stoich_matrix.shape[1]
@@ -89,21 +91,11 @@ class simulator():
 
         ##################################################################################################
         while (T[rxnCount] < tspan[1]):  # as long as the time step stays within allocated time
-            a = np.double([])
-
             a = propensity_fcn.calc_propensity(propensity_fcn(), stoich_matrix, X[rxnCount, :], reaction_rates)
             asum = np.sum(a)  # take the entire sum of the prop function
 
-            # a = np.append(a, reaction_rates[0] * X[rxnCount, 0] * X[rxnCount, 1])
-            # a = np.append(a, reaction_rates[1] * X[rxnCount, 2])
-            # a = np.append(a, reaction_rates[2] * X[rxnCount, 2])
-            # asum = np.sum(a)
-
             r1 = np.random.uniform(0, 1)
-            r2 = np.random.uniform(0, 1)
-
             tau = (1 / asum) * math.log((1 / r1), math.e)
-            # tau = (math.log(1 / r1)) / asum
             mu = 0
             ai = a[0]  # for first loop
 
@@ -150,7 +142,7 @@ class simulator():
                     plt.legend(loc='upper right')
                     plt.show()
 
-                raise Exception("Simulation terminated because max output length has been reached.")
+                    raise Exception("Simulation terminated because max output length has been reached.")
                 break
 
         t = T[1:rxnCount]
