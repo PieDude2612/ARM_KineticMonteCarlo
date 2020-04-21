@@ -31,11 +31,17 @@ class simulator():
             # find the file, which should be named a certain way
 
             for reac in range(len(reacdictN)):
-                if((reacdictN[reac] is not all(masterReactionArr))):
+                if(filenum == 0):
                     masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
+                else:
+                    try:
+                        x = list(masterReactionArr).index(reacdictN[reac])
+                    except ValueError or AttributeError:
+                        masterReactionArr = np.append(masterReactionArr, reacdictN[reac])
             # loading processes for reaction and molecule dictionaries
-        finalTimesHapp = np.zeros((len(masterReactionArr), 1)).astype(int)
-        finalTimesPoss = np.zeros((len(masterReactionArr), 1)).astype(int)
+        finalTimesHapp = np.zeros((len(masterReactionArr))).astype(int)
+        finalTimesPoss = np.zeros((len(masterReactionArr))).astype(int)
+
         for filenum in range(totalFiles):
             timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filenum + 1),
                                                         dataSetLoader.rpfc(dataSetLoader(), filenum + 1),
@@ -64,10 +70,18 @@ class simulator():
 #######################################################################################################################
             theMolesFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
                                          + str(filenum + 1) + '.dat', 'r')
-            moledictN = theMolesFile.readlines()
+            moledictN = np.array([])
+            for line in theMolesFile:
+                moledictN = np.append(moledictN, line.replace('\n', ''))
+
             for reac in range(len(moledictN)):
-                if((moledictN[reac] is not any(masterMoleculeArr))):
-                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac].replace('\n', '')) # find distinct molecules
+                if (filenum == 0):
+                    masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
+                else:
+                    try:
+                        x = list(masterMoleculeArr).index(moledictN[reac])
+                    except ValueError or AttributeError:
+                        masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, ((finalTimesHapp[reaction] / finalTimesPoss[reaction]) / 0.012))
