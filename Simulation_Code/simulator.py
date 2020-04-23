@@ -69,7 +69,7 @@ class simulator():
 
             finalTimesHapp = finalTimesHapp + timesHappened
             finalTimesPoss = finalTimesPoss + timesPossible
-            print("Calculated and appended timesHapp and timesPoss " + str(filenum))
+            print("Calculated and appended timesHapp and timesPoss " + str(filenum + 1))
 #######################################################################################################################
             theMolesFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
                                          + str(filenum + 1) + '.dat', 'r')
@@ -85,7 +85,7 @@ class simulator():
                         x = list(masterMoleculeArr).index(moledictN[reac])
                     except ValueError or AttributeError:
                         masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
-            print("Appended molecule file")
+            print("Appended molecule file " + str(filenum + 1))
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, ((finalTimesHapp[reaction] / finalTimesPoss[reaction]) / 0.012))
