@@ -10,7 +10,7 @@ from Simulation_Code.matchNcreate import matchNcreate
 class simulator():
 
     def startup(self, totalFiles, simTime, simFileNum):
-        print("Starting Program Execution at " + str(time.time()))
+        print("Starting Program Execution at " + str(time.ctime(time.time())))
         t = np.array([0, simTime])
         thresholdReact = 5
 
