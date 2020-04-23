@@ -141,15 +141,15 @@ class simulator():
                 print("Finished simulation v1. Plotting graphs...")
                 print("Type in any number in given range to see graphs. STOP to exit.")
                 while 1 == 1:
-                    spectoSee = input("Enter species to analyse (0-" + str(np.amax(pltInds)) + ") : ")
+                    spectoSee = str(input("Enter species to analyse (0-" + str(np.amax(pltInds)) + ") : "))
                     theSame = spectoSee is not "STOP"
                     if not theSame:
                         break
 
                     t = T[0:rxnCount - 1]
-                    fig = plt.figure(spectoSee)
-                    fig.plot(t, X[0:rxnCount - 1, pltInds[spectoSee]], label='x' + str(spectoSee))
-                    fig.plot(t, xcomp[0:rxnCount - 1, pltInds[spectoSee]], label='xo' + str(spectoSee))
+                    fig = plt.figure()
+                    plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
+                    plt.plot(t, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
 
                     plt.xlabel("Time (ps)")
                     plt.ylabel("Molecules")
@@ -162,16 +162,15 @@ class simulator():
         print("Finished simulation v2.")
         print("Type in any number in given range to see graphs. STOP to exit.")
         while 1 == 1:
-            spectoSee = input("Enter species to analyse (0-" + str(np.amax(pltInds)) + ") : ")
+            spectoSee = str(input("Enter species to analyse (0-" + str(np.amax(pltInds)) + ") : "))
             theSame = spectoSee is not "STOP"
             if not theSame:
-                print("End of Simulation.")
                 break
 
             t = T[0:rxnCount - 1]
-            fig = plt.figure(spectoSee)
-            fig.plot(t, X[0:rxnCount - 1, pltInds[spectoSee]], label='x' + str(spectoSee))
-            fig.plot(t, xcomp[0:rxnCount - 1, pltInds[spectoSee]], label='xo' + str(spectoSee))
+            fig = plt.figure()
+            plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
+            plt.plot(t, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
 
             plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
