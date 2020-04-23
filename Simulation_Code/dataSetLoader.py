@@ -117,3 +117,20 @@ class dataSetLoader():
         reacNum = None
         reacCount = None
         return rpfc
+
+    def createTestMD(self, inputFilenum, masterMolArr, xin):
+        inputFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all' +
+                         str(inputFilenum) + '.dat', 'r')
+        testMD = np.zeros((len(masterMolArr)))
+        plotIndices = np.array([]).astype(int)
+        count = 0
+        for line in inputFile:
+            try:
+                indexMatch = list(masterMolArr).index(line.replace('\n', ''))
+                plotIndices = np.append(plotIndices, indexMatch)
+                testMD[indexMatch] = xin[count]
+                count = count + 1
+            except ValueError:
+                count = count + 1
+
+        return testMD, plotIndices
