@@ -8,16 +8,9 @@ class propensity_fcn():
 
         propArr = np.double([])
         numRows = stoichmat.shape[0]
-        numCols = stoichmat.shape[1]
-
-        i = 0
         for row in range(numRows):
-            stoichs = np.array([])
-            for col in range(numCols):
-                stoichs = np.append(stoichs, stoichmat[row, col])
-
-            propArr = np.append(propArr, propensity_fcn.findSectionPropensity(propensity_fcn(), stoichs, xarr, rp[i]))
-            i = i + 1
+            propArr = np.append(propArr, propensity_fcn.findSectionPropensity(propensity_fcn(), stoichmat[row, :],
+                                                                              xarr, rp[row]))
 
         return propArr
 

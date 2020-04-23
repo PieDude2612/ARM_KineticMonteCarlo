@@ -47,7 +47,7 @@ class reacRatesCalc():
             timesHappened[reac] = dkdt
             timesPossible[reac] = np.sum(concreact)
             # 5CH3 + 3H
-        ##############################################################################################################################
+        # #############################################################################################################################
         for j in range(len(reactRates)):  # k = (integral) dkdt
             reactRates[j] = (timesHappened[j] / timesPossible[j]) / 0.012
 

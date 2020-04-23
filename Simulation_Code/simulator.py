@@ -9,6 +9,7 @@ from Simulation_Code.matchNcreate import matchNcreate
 class simulator():
 
     def startup(self, totalFiles, simTime, simFileNum):
+        print("Starting...")
         t = np.array([0, simTime])
         thresholdReact = 5
 
@@ -41,6 +42,7 @@ class simulator():
             # loading processes for reaction and molecule dictionaries
         finalTimesHapp = np.zeros((len(masterReactionArr))).astype(int)
         finalTimesPoss = np.zeros((len(masterReactionArr))).astype(int)
+        print("All dictionaries loaded")
 
         for filenum in range(totalFiles):
             timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filenum + 1),
@@ -67,6 +69,7 @@ class simulator():
 
             finalTimesHapp = finalTimesHapp + timesHappened
             finalTimesPoss = finalTimesPoss + timesPossible
+            print("Calculated and appended timesHapp and timesPoss " + str(filenum))
 #######################################################################################################################
             theMolesFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
                                          + str(filenum + 1) + '.dat', 'r')
@@ -82,20 +85,25 @@ class simulator():
                         x = list(masterMoleculeArr).index(moledictN[reac])
                     except ValueError or AttributeError:
                         masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
+            print("Appended molecule file")
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, ((finalTimesHapp[reaction] / finalTimesPoss[reaction]) / 0.012))
+        print("Finished calculating reaction rate constants")
 
         masterStoichMat = matchNcreate.doStringMatch(matchNcreate(), list(masterReactionArr), list(masterMoleculeArr))
+        print("Stoich matrix created")
 
         xtoCompare = dataSetLoader.xi(dataSetLoader(), 3)
         xtoTake, plotInds = dataSetLoader.createTestMD(dataSetLoader(), simFileNum, masterMoleculeArr, xtoCompare[0, :])
+        print("Calculated test MD")
         keyreacSpeciesnum = dataSetLoader.sms(dataSetLoader(), simFileNum, 1).shape[1]
 
         simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, keyreacSpeciesnum, plotInds,
-                               reactionRateConstants, 3000)
+                               reactionRateConstants, 50)
 
     def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, keySpecs, pltInds, reaction_rates, max_output_length):
+        print("Starting simulation...")
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
         X = np.zeros((max_output_length, num_species))  # molecules that exist over time
@@ -104,7 +112,7 @@ class simulator():
         X[0, :] = x0
 
         rxnCount = 0
-
+        print("Simulating propensity function...")
         ##################################################################################################
         while (T[rxnCount] < tspan[1]):  # as long as the time step stays within allocated time
             a = propensity_fcn.calc_propensity(propensity_fcn(), stoich_matrix, X[rxnCount, :], reaction_rates)
@@ -129,6 +137,7 @@ class simulator():
             ###################################################################################################
 
             if ((rxnCount + 1) >= max_output_length):  # If time allocated is still not exceeded and loop
+                print("Finished simulation v1. Plotting graphs...")
                 t = T[0:rxnCount - 1]
                 graphs = 1
                 colorTally = 0
@@ -157,17 +166,16 @@ class simulator():
 
                     colorTally = colorTally + 10
                     graphs = graphs + 1
-                    fig.xlabel("Time (ps)")
-                    comparefig.xlabel("Time (ps)")
-                    fig.ylabel("Molecules")
-                    comparefig.ylabel("Molecules")
-                    fig.legend(loc='upper right')
-                    comparefig.legend(loc='upper right')
+                    plt.xlabel("Time (ps)")
+                    plt.ylabel("Molecules")
+                    plt.legend(loc='upper right')
+                    print("All graphs created. Generating picture...")
                     fig.show()
                     comparefig.show()
 
                 raise Exception("Simulation terminated because max output length has been reached.")
 
+        print("Finished simulation v2. Generating graphs...")
         t = T[0:rxnCount - 1]
         graphs = 1
         colorTally = 0
@@ -196,11 +204,9 @@ class simulator():
 
             colorTally = colorTally + 10
             graphs = graphs + 1
-            fig.xlabel("Time (ps)")
-            comparefig.xlabel("Time (ps)")
-            fig.ylabel("Molecules")
-            comparefig.ylabel("Molecules")
-            fig.legend(loc='upper right')
-            comparefig.legend(loc='upper right')
+            plt.xlabel("Time (ps)")
+            plt.ylabel("Molecules")
+            plt.legend(loc='upper right')
+            print("All graphs created. Generating picture...")
             fig.show()
             comparefig.show()
