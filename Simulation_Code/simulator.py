@@ -138,75 +138,41 @@ class simulator():
 
             if ((rxnCount + 1) >= max_output_length):  # If time allocated is still not exceeded and loop
                 print("Finished simulation v1. Plotting graphs...")
-                t = T[0:rxnCount - 1]
-                graphs = 1
-                colorTally = 0
-                species = pltInds
-                specs = 0
-                limit = 0
+                print("Type in any number in given range to see graphs. STOP to exit.")
+                while 1 == 1:
+                    spectoSee = input("Enter species to analyse (0-" + np.amax(pltInds) + ") : ")
+                    theSame = spectoSee is not "STOP"
+                    if not theSame:
+                        break
 
-                fig = plt.figure(1)
-                comparefig = plt.figure(2)
-                # Since the graph legend only has 10 colors in store, they are repeated making it hard to read
-                # graph. So I designed something that will create separate graphs everytime 10 colours are used
-                # This way it is easier to keep track of stuff
+                    t = T[0:rxnCount - 1]
+                    fig = plt.figure(spectoSee)
+                    fig.plot(t, X[0:rxnCount - 1, pltInds[spectoSee]], label='x' + str(spectoSee))
+                    fig.plot(t, xcomp[0:rxnCount - 1, pltInds[spectoSee]], label='xo' + str(spectoSee))
 
-                while (colorTally < keySpecs):
-                    if (keySpecs - colorTally < 10):
-                        limit = limit + (keySpecs - colorTally)
-                    else:
-                        limit = limit + 10
-
-                    ax = fig.add_subplot(10, 10, graphs)
-                    ax2 = comparefig.add_subplot(10, 10, graphs)
-                    while (specs < limit):
-                        ax.plot(t, X[0:(rxnCount - 1), species[specs]], label='x' + str(species[specs]))
-                        ax2.plot(t, xcomp[0:rxnCount - 1, specs], label='xo' + str(specs))
-                        specs = specs + 1
-
-                    colorTally = colorTally + 10
-                    graphs = graphs + 1
                     plt.xlabel("Time (ps)")
                     plt.ylabel("Molecules")
                     plt.legend(loc='upper right')
-                    print("All graphs created. Generating picture...")
+                    print("Generating picture...")
                     fig.show()
-                    comparefig.show()
 
                 raise Exception("Simulation terminated because max output length has been reached.")
 
-        print("Finished simulation v2. Generating graphs...")
-        t = T[0:rxnCount - 1]
-        graphs = 1
-        colorTally = 0
-        species = pltInds
-        specs = 0
-        limit = 0
+        print("Finished simulation v2.")
+        print("Type in any number in given range to see graphs. STOP to exit.")
+        while 1 == 1:
+            spectoSee = input("Enter species to analyse (0-" + np.amax(pltInds) + ") : ")
+            theSame = spectoSee is not "STOP"
+            if not theSame:
+                break
 
-        fig = plt.figure(1)
-        comparefig = plt.figure(2)
-        # Since the graph legend only has 10 colors in store, they are repeated making it hard to read
-        # graph. So I designed something that will create separate graphs everytime 10 colours are used
-        # This way it is easier to keep track of stuff
+            t = T[0:rxnCount - 1]
+            fig = plt.figure(spectoSee)
+            fig.plot(t, X[0:rxnCount - 1, pltInds[spectoSee]], label='x' + str(spectoSee))
+            fig.plot(t, xcomp[0:rxnCount - 1, pltInds[spectoSee]], label='xo' + str(spectoSee))
 
-        while (colorTally < keySpecs):
-            if (keySpecs - colorTally < 10):
-                limit = limit + (keySpecs - colorTally)
-            else:
-                limit = limit + 10
-
-            ax = fig.add_subplot(10, 10, graphs)
-            ax2 = comparefig.add_subplot(10, 10, graphs)
-            while (specs < limit):
-                ax.plot(t, X[0:(rxnCount - 1), species[specs]], label='x' + str(species[specs]))
-                ax2.plot(t, xcomp[0:rxnCount - 1, specs], label='xo' + str(specs))
-                specs = specs + 1
-
-            colorTally = colorTally + 10
-            graphs = graphs + 1
             plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
             plt.legend(loc='upper right')
-            print("All graphs created. Generating picture...")
+            print("Generating picture...")
             fig.show()
-            comparefig.show()
