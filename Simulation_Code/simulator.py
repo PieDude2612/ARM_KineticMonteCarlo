@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import time
 from matplotlib import pyplot as plt
 from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
@@ -9,7 +10,7 @@ from Simulation_Code.matchNcreate import matchNcreate
 class simulator():
 
     def startup(self, totalFiles, simTime, simFileNum):
-        print("Starting...")
+        print("Starting Program Execution at " + str(time.time()))
         t = np.array([0, simTime])
         thresholdReact = 5
 
