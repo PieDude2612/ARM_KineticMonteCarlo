@@ -96,7 +96,8 @@ class simulator():
         print("Stoich matrix created")
 
         xtoCompare = dataSetLoader.xi(dataSetLoader(), 3)
-        xtoTake, plotInds = dataSetLoader.createTestMD(dataSetLoader(), simFileNum, masterMoleculeArr, xtoCompare[0, :])
+        xtoTake, plotInds, speciesNotTrained = dataSetLoader.createTestMD(dataSetLoader(), simFileNum, masterMoleculeArr, xtoCompare[0, :])
+        xtoCompare = np.delete(xtoCompare, speciesNotTrained, axis=1)
         print("Calculated test MD")
 
         simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, plotInds,

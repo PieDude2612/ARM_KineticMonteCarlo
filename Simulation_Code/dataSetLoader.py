@@ -123,6 +123,7 @@ class dataSetLoader():
                          str(inputFilenum) + '.dat', 'r')
         testMD = np.zeros((len(masterMolArr)))
         plotIndices = np.array([]).astype(int)
+        speciesNo = np.array([]).astype(int)
         count = 0
         for line in inputFile:
             try:
@@ -131,6 +132,7 @@ class dataSetLoader():
                 testMD[indexMatch] = xin[count]
                 count = count + 1
             except ValueError:
+                speciesNo = np.append(speciesNo, count)
                 count = count + 1
 
-        return testMD, plotIndices
+        return testMD, plotIndices, speciesNo
