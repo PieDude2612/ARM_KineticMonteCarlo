@@ -101,7 +101,7 @@ class simulator():
         xtoCompare = np.delete(xtoCompare, speciesNotTrained, axis=1)
         print(str(time.ctime(time.time())) + ": Calculated test MD")
 
-        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, plotInds, reactionRateConstants, 350)
+        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, plotInds, reactionRateConstants, 750)
 
     def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, pltInds, reaction_rates, max_output_length):
         print("Starting simulation...")
