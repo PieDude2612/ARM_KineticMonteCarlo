@@ -141,7 +141,7 @@ class simulator():
                 print("Finished simulation v1. Plotting graphs...")
                 print("Type in any number in given range to see graphs. STOP to exit.")
                 while 1 == 1:
-                    spectoSee = str(input("Enter species to analyse (0-" + str(np.amax(pltInds)) + ") : "))
+                    spectoSee = str(input("Enter species to analyse (0-" + str(len(pltInds)) + ") : "))
                     theSame = spectoSee is not "STOP"
                     if not theSame:
                         break
@@ -162,7 +162,7 @@ class simulator():
         print("Finished simulation v2.")
         print("Type in any number in given range to see graphs. STOP to exit.")
         while 1 == 1:
-            spectoSee = str(input("Enter species to analyse (0-" + str(np.amax(pltInds)) + ") : "))
+            spectoSee = str(input("Enter species to analyse (0-" + str(len(pltInds)) + ") : "))
             theSame = spectoSee is not "STOP"
             if not theSame:
                 break
