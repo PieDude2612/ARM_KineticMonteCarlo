@@ -98,12 +98,11 @@ class simulator():
         xtoCompare = dataSetLoader.xi(dataSetLoader(), 3)
         xtoTake, plotInds = dataSetLoader.createTestMD(dataSetLoader(), simFileNum, masterMoleculeArr, xtoCompare[0, :])
         print("Calculated test MD")
-        keyreacSpeciesnum = dataSetLoader.sms(dataSetLoader(), simFileNum, 1).shape[1]
 
-        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, keyreacSpeciesnum, plotInds,
+        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, plotInds,
                                reactionRateConstants, 50)
 
-    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, keySpecs, pltInds, reaction_rates, max_output_length):
+    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, pltInds, reaction_rates, max_output_length):
         print("Starting simulation...")
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
@@ -147,11 +146,12 @@ class simulator():
                         break
 
                     t = T[0:rxnCount - 1]
+                    tcomp = np.arange(xcomp.shape[0])
                     fig = plt.figure()
                     plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
-                    plt.plot(t, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
+                    plt.plot(tcomp, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
 
-                    plt.xlabel("Time (ps)")
+                    plt.xlabel("Time (s)")
                     plt.ylabel("Molecules")
                     plt.legend(loc='upper right')
                     print("Generating picture...")
@@ -168,11 +168,12 @@ class simulator():
                 break
 
             t = T[0:rxnCount - 1]
+            tcomp = np.arange(xcomp.shape[0])
             fig = plt.figure()
             plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
-            plt.plot(t, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
+            plt.plot(tcomp, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
 
-            plt.xlabel("Time (ps)")
+            plt.xlabel("Time (s)")
             plt.ylabel("Molecules")
             plt.legend(loc='upper right')
             print("Generating picture...")
