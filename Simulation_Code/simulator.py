@@ -102,9 +102,9 @@ class simulator():
         print(str(time.ctime(time.time())) + ": Calculated test MD")
 
         simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, plotInds,
-                               reactionRateConstants, 350)
+                               reactionRateConstants, simFileNum, 350)
 
-    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, pltInds, reaction_rates, max_output_length):
+    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, pltInds, reaction_rates, inFileNum, max_output_length):
         print("Starting simulation...")
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
@@ -147,16 +147,15 @@ class simulator():
                         break
 
                     t = T[0:rxnCount - 1]
-                    tcomp = np.arange(xcomp[0:rxnCount - 1, :].shape[0])
                     fig = plt.figure()
                     plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
-                    plt.plot(tcomp, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
 
-                    plt.xlabel("Time (s)")
+                    plt.xlabel("Time (ps)")
                     plt.ylabel("Molecules")
                     plt.legend(loc='upper right')
                     print(str(time.ctime(time.time())) + ": Generating picture...")
                     fig.show()
+                    dataSetLoader.plotMDOnly(dataSetLoader(), inFileNum, spectoSee)
 
                 raise Exception("Simulation Terminated due to User Input.")
 
@@ -168,13 +167,12 @@ class simulator():
                 break
 
             t = T[0:rxnCount - 1]
-            tcomp = np.arange(xcomp[0:rxnCount - 1, :].shape[0])
             fig = plt.figure()
             plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
-            plt.plot(tcomp, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
 
-            plt.xlabel("Time (s)")
+            plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
             plt.legend(loc='upper right')
             print(str(time.ctime(time.time())) + ": Generating picture...")
             fig.show()
+            dataSetLoader.plotMDOnly(dataSetLoader(), inFileNum, spectoSee)
