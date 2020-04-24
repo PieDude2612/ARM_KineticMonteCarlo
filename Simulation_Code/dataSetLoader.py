@@ -138,11 +138,10 @@ class dataSetLoader():
 
         return testMD, plotIndices, speciesNo
 
-    def plotMDOnly(self, inputFilenum, specSee):
-        x = dataSetLoader.xi(dataSetLoader(), inputFilenum)
-        t = np.arange(x.shape[0])
+    def plotMDOnly(self, xc, specSee):
+        t = np.arange(xc.shape[0] * 0.012)
         fig = plt.figure()
         plt.xlabel("Time (ps)")
         plt.ylabel("Molecules")
-        plt.plot(t, x[:, int(specSee)], label='xo' + specSee)
+        plt.plot(t, xc[:, int(specSee)], label='xo' + specSee)
         fig.show()
