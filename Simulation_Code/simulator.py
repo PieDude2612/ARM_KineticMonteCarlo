@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import time
+import sys
 from matplotlib import pyplot as plt
 from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
@@ -157,14 +158,13 @@ class simulator():
                     print(str(time.ctime(time.time())) + ": Generating picture...")
                     fig.show()
 
-                break
+                raise Exception("Simulation Terminated due to User Input.")
 
         print(str(time.ctime(time.time())) + ": Finished simulation v2.")
         print("Type in any number in given range to see graphs. STOP to exit.")
         while 1 == 1:
             spectoSee = str(input("Enter species to analyse (0-" + str(len(pltInds)) + ") : "))
-            theSame = spectoSee is not "STOP"
-            if not theSame:
+            if (spectoSee == "STOP"):
                 break
 
             t = T[0:rxnCount - 1]
