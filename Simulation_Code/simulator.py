@@ -146,7 +146,7 @@ class simulator():
                         break
 
                     t = T[0:rxnCount - 1]
-                    tcomp = np.arange(xcomp.shape[0])
+                    tcomp = np.arange(xcomp[0:rxnCount - 1, :].shape[0])
                     fig = plt.figure()
                     plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
                     plt.plot(tcomp, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
@@ -168,7 +168,7 @@ class simulator():
                 break
 
             t = T[0:rxnCount - 1]
-            tcomp = np.arange(xcomp.shape[0])
+            tcomp = np.arange(xcomp[0:rxnCount - 1, :].shape[0])
             fig = plt.figure()
             plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
             plt.plot(tcomp, xcomp[0:rxnCount - 1, pltInds[int(spectoSee)]], label='xo' + spectoSee)
