@@ -101,9 +101,10 @@ class simulator():
         xtoCompare = np.delete(xtoCompare, speciesNotTrained, axis=1)
         print(str(time.ctime(time.time())) + ": Calculated test MD")
 
-        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, plotInds, reactionRateConstants, 750)
+        simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, masterMoleculeArr, plotInds,
+                               reactionRateConstants, 750)
 
-    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, pltInds, reaction_rates, max_output_length):
+    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, masterMolArr, pltInds, reaction_rates, max_output_length):
         print("Starting simulation...")
         num_species = stoich_matrix.shape[1]
         T = np.zeros((max_output_length, 1))  # time step array
@@ -147,14 +148,15 @@ class simulator():
 
                     t = T[0:rxnCount - 1]
                     fig = plt.figure()
-                    plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
+                    plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label=masterMolArr[pltInds[int(spectoSee)]])
 
+                    print(str(time.ctime(time.time())) + ": Generating pictures...")
                     plt.xlabel("Time (ps)")
                     plt.ylabel("Molecules")
                     plt.legend(loc='upper right')
-                    print(str(time.ctime(time.time())) + ": Generating picture...")
+                    plt.title("Graph showing KMC trajectory of " + masterMolArr[pltInds[int(spectoSee)]])
                     fig.show()
-                    dataSetLoader.plotMDOnly(dataSetLoader(), xcomp, spectoSee)
+                    dataSetLoader.plotMDOnly(dataSetLoader(), xcomp, masterMolArr, pltInds, spectoSee)
 
                 raise Exception("Simulation Terminated due to User Input.")
 
@@ -167,11 +169,12 @@ class simulator():
 
             t = T[0:rxnCount - 1]
             fig = plt.figure()
-            plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label='x' + spectoSee)
+            plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label=masterMolArr[pltInds[int(spectoSee)]])
 
+            print(str(time.ctime(time.time())) + ": Generating pictures...")
             plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
             plt.legend(loc='upper right')
-            print(str(time.ctime(time.time())) + ": Generating picture...")
+            plt.title("Graph showing KMC trajectory of " + masterMolArr[pltInds[int(spectoSee)]])
             fig.show()
-            dataSetLoader.plotMDOnly(dataSetLoader(), xcomp, spectoSee)
+            dataSetLoader.plotMDOnly(dataSetLoader(), xcomp, masterMolArr, pltInds, spectoSee)
