@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import time
-import sys
 from matplotlib import pyplot as plt
 from Simulation_Code.propensity_fcn import propensity_fcn
 from Simulation_Code.reacRatesCalc import reacRatesCalc
