@@ -137,13 +137,3 @@ class dataSetLoader():
                 count = count + 1
 
         return testMD, plotIndices, speciesNo
-
-    def plotMDOnly(self, xc, masterMol, pltIn, specSee):
-        t = np.arange(xc.shape[0] * 0.012)
-        fig = plt.figure()
-        plt.xlabel("Time (ps)")
-        plt.ylabel("Molecules")
-        plt.legend(loc='upper right')
-        plt.title("Graph showing MD trajectory of " + masterMol[pltIn[int(specSee)]])
-        plt.plot(t, xc[:, int(specSee)], label=masterMol[pltIn[int(specSee)]])
-        fig.show()

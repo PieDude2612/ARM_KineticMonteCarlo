@@ -9,7 +9,7 @@ from Simulation_Code.matchNcreate import matchNcreate
 
 class simulator():
 
-    def startup(self, totalFiles, simTime, simFileNum):
+    def startup(self, filesArray, simTime, simFileNum):
         print(str(time.ctime(time.time())) + ": Starting Program Execution")
         t = np.array([0, simTime])
         thresholdReact = 5
@@ -20,13 +20,13 @@ class simulator():
 
         dictofdicts = dict()
         keys = np.array([])
-        for i in range(totalFiles + 1): keys = np.append(keys, i + 1)
+        for i in range(len(filesArray)): keys = np.append(keys, i + 1)
         dictofdicts.fromkeys(keys)
 #######################################################################################################################
-        for filenum in range(totalFiles):
+        for filenum in range(len(filesArray)):
             reacdictN = np.array([])
             theReacsFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
-                                    + str(filenum + 1) + '.dat', 'r')
+                                    + str(filesArray[filenum]) + '.dat', 'r')
             for line in theReacsFile:
                 reacdictN = np.append(reacdictN, line.replace('\n', ''))
             dictofdicts[filenum] = list(reacdictN)
@@ -45,14 +45,14 @@ class simulator():
         finalTimesPoss = np.zeros((len(masterReactionArr))).astype(int)
         print(str(time.ctime(time.time())) + ": All dictionaries loaded")
 
-        for filenum in range(totalFiles):
-            timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filenum + 1),
-                                                        dataSetLoader.rpfc(dataSetLoader(), filenum + 1),
-                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 1),
-                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 2),
+        for filenum in range(len(filesArray)):
+            timesHapp, timesPoss = reacRatesCalc.calcrr(reacRatesCalc(), dataSetLoader.xi(dataSetLoader(), filesArray[filenum]),
+                                                        dataSetLoader.rpfc(dataSetLoader(), filesArray[filenum]),
+                                                        dataSetLoader.sms(dataSetLoader(), filesArray[filenum], 1),
+                                                        dataSetLoader.sms(dataSetLoader(), filesArray[filenum], 2),
                                                         t[0], t[1], thresholdReact,
-                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 3),
-                                                        dataSetLoader.sms(dataSetLoader(), filenum + 1, 4))
+                                                        dataSetLoader.sms(dataSetLoader(), filesArray[filenum], 3),
+                                                        dataSetLoader.sms(dataSetLoader(), filesArray[filenum], 4))
             # get the reaction rate constants for each MD file
 
             timesHappened = np.array([]).astype(int)
@@ -70,10 +70,10 @@ class simulator():
 
             finalTimesHapp = finalTimesHapp + timesHappened
             finalTimesPoss = finalTimesPoss + timesPossible
-            print(str(time.ctime(time.time())) + ": Calculated and appended timesHapp and timesPoss " + str(filenum + 1))
+            print(str(time.ctime(time.time())) + ": Calculated and appended timesHapp and timesPoss " + str(filesArray[filenum]))
 #######################################################################################################################
             theMolesFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
-                                         + str(filenum + 1) + '.dat', 'r')
+                                         + str(filesArray[filenum]) + '.dat', 'r')
             moledictN = np.array([])
             for line in theMolesFile:
                 moledictN = np.append(moledictN, line.replace('\n', ''))
@@ -86,7 +86,7 @@ class simulator():
                         x = list(masterMoleculeArr).index(moledictN[reac])
                     except ValueError or AttributeError:
                         masterMoleculeArr = np.append(masterMoleculeArr, moledictN[reac])
-            print(str(time.ctime(time.time())) + ": Appended molecule file " + str(filenum + 1))
+            print(str(time.ctime(time.time())) + ": Appended molecule file " + str(filesArray[filenum]))
 #######################################################################################################################
         for reaction in range(len(masterReactionArr)):
             reactionRateConstants = np.append(reactionRateConstants, ((finalTimesHapp[reaction] / finalTimesPoss[reaction]) / 0.012))
@@ -101,14 +101,14 @@ class simulator():
         print(str(time.ctime(time.time())) + ": Calculated test MD")
 
         simulator.iterateNplot(simulator(), masterStoichMat, t, xtoTake, xtoCompare, masterMoleculeArr, plotInds,
-                               reactionRateConstants, 750)
+                               reactionRateConstants)
 
-    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, masterMolArr, pltInds, reaction_rates, max_output_length):
+    def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, masterMolArr, pltInds, reaction_rates):
         print("Starting simulation...")
         num_species = stoich_matrix.shape[1]
-        T = np.zeros((max_output_length, 1))  # time step array
-        X = np.zeros((max_output_length, num_species))  # molecules that exist over time
-        MU = np.zeros((max_output_length, 1))
+        T = np.zeros((tspan[1], 1))  # time step array
+        X = np.zeros((tspan[1], num_species))  # molecules that exist over time
+        MU = np.zeros((tspan[1], 1))
         T[0] = tspan[0]
         X[0, :] = x0
 
@@ -135,45 +135,22 @@ class simulator():
             X[rxnCount + 1, :] = X[rxnCount, :] + stoich_matrix[mu, :]  # the next molecule count (PRV)
             MU[rxnCount + 1] = mu
             rxnCount = rxnCount + 1
-            ###################################################################################################
-
-            if ((rxnCount + 1) >= max_output_length):  # If time allocated is still not exceeded and loop
-                print(str(time.ctime(time.time())) + ": Finished simulation v1. Plotting graphs...")
-                print("Type in any number in given range to see graphs. STOP to exit.")
-                while 1 == 1:
-                    spectoSee = str(input("Enter species to analyse (0-" + str(len(pltInds)) + ") : "))
-                    if (spectoSee == "STOP"):
-                        break
-
-                    t = T[0:rxnCount - 1]
-                    fig = plt.figure()
-                    plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label=masterMolArr[pltInds[int(spectoSee)]])
-
-                    print(str(time.ctime(time.time())) + ": Generating pictures...")
-                    plt.xlabel("Time (ps)")
-                    plt.ylabel("Molecules")
-                    plt.legend(loc='upper right')
-                    plt.title("Graph showing KMC trajectory of " + masterMolArr[pltInds[int(spectoSee)]])
-                    fig.show()
-                    dataSetLoader.plotMDOnly(dataSetLoader(), xcomp, masterMolArr, pltInds, spectoSee)
-
-                raise Exception("Simulation Terminated due to User Input.")
-
-        print(str(time.ctime(time.time())) + ": Finished simulation v2.")
+        ###################################################################################################
+        print(str(time.ctime(time.time())) + ": Finished simulation.")
         print("Type in any number in given range to see graphs. STOP to exit.")
         while 1 == 1:
             spectoSee = str(input("Enter species to analyse (0-" + str(len(pltInds)) + ") : "))
             if (spectoSee == "STOP"):
                 break
+            print(str(time.ctime(time.time())) + ": Generating picture...")
 
             t = T[0:rxnCount - 1]
             fig = plt.figure()
-            plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label=masterMolArr[pltInds[int(spectoSee)]])
+            plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label=masterMolArr[pltInds[int(spectoSee)]]) # KMC Plot
+            plt.plot(t, xcomp[0:rxnCount - 1, int(spectoSee)], label=masterMolArr[pltInds[int(spectoSee)]]) # MD Plot
 
-            print(str(time.ctime(time.time())) + ": Generating pictures...")
             plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
             plt.legend(loc='upper right')
-            plt.title("Graph showing KMC trajectory of " + masterMolArr[pltInds[int(spectoSee)]])
+            plt.title("Graph showing KMC and MD trajectories of " + masterMolArr[pltInds[int(spectoSee)]])
             fig.show()
-            dataSetLoader.plotMDOnly(dataSetLoader(), xcomp, masterMolArr, pltInds, spectoSee)
