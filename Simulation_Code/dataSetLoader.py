@@ -5,7 +5,7 @@ class dataSetLoader():
 
     def sms(self, fileNumber, type):
         theData = open(
-            'D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all' + str(fileNumber) + '.dat', 'r')
+            'D:\\ARM_KineticMonteCarlo\\Data Files\\reactbasis_all' + str(fileNumber) + '.dat', 'r')
         all_data = theData.readlines()
         rows = np.array([]).astype(int)
         cols = np.array([]).astype(int)
@@ -73,7 +73,7 @@ class dataSetLoader():
 
     def xi(self, fileNumber):
         theData = open(
-            'D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_' + str(fileNumber) + '.dat',
+            'D:\\ARM_KineticMonteCarlo\\Data Files\\molhistperframe_' + str(fileNumber) + '.dat',
             'r')
         all_data = theData.readlines()
         rows = np.array([]).astype(int)
@@ -98,7 +98,7 @@ class dataSetLoader():
 
     def rpfc(self, fileNumber):
         theData = open(
-            'D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_' + str(fileNumber) + '.dat', 'r')
+            'D:\\ARM_KineticMonteCarlo\\Data Files\\reactperframe_' + str(fileNumber) + '.dat', 'r')
         all_data = theData.readlines()
         timestep = np.array([]).astype(int)
         reacNum = np.array([]).astype(int)
@@ -120,7 +120,7 @@ class dataSetLoader():
         return rpfc
 
     def createTestMD(self, inputFilenum, masterMolArr, xin):
-        inputFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all' +
+        inputFile = open('D:\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all' +
                          str(inputFilenum) + '.dat', 'r')
         testMD = np.zeros((len(masterMolArr)))
         plotIndices = np.array([]).astype(int)

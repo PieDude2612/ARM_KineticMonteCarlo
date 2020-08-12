@@ -25,7 +25,7 @@ class simulator():
 #######################################################################################################################
         for filenum in range(len(filesArray)):
             reacdictN = np.array([])
-            theReacsFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
+            theReacsFile = open('D:\\ARM_KineticMonteCarlo\\Data Files\\reacdict_all'
                                     + str(filesArray[filenum]) + '.dat', 'r')
             for line in theReacsFile:
                 reacdictN = np.append(reacdictN, line.replace('\n', ''))
@@ -72,7 +72,7 @@ class simulator():
             finalTimesPoss = finalTimesPoss + timesPossible
             print(str(time.ctime(time.time())) + ": Calculated and appended timesHapp and timesPoss " + str(filesArray[filenum]))
 #######################################################################################################################
-            theMolesFile = open('D:\\PythonProgramming\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
+            theMolesFile = open('D:\\ARM_KineticMonteCarlo\\Data Files\\moleculedict_all'
                                          + str(filesArray[filenum]) + '.dat', 'r')
             moledictN = np.array([])
             for line in theMolesFile:
