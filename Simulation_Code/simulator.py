@@ -145,14 +145,14 @@ class simulator():
             print(str(time.ctime(time.time())) + ": Generating picture...")
 
             t = T[0:rxnCount]
-            fig = plt.figure()
             yvalsKMC = X[0:rxnCount, pltInds[int(spectoSee)]]
             yvalsMD = xcomp[0:rxnCount, int(spectoSee)]
 
-            plt.plot(t, yvalsKMC, t, yvalsMD) # KMC and MD Plot
-
+            plt.figure()
+            plt.plot(t, yvalsKMC, label=str(masterMolArr[pltInds[int(spectoSee)]]) + " KMC") # KMC plot
+            plt.plot(t, yvalsMD, label=str(masterMolArr[pltInds[int(spectoSee)]]) + " MD") # MD Plot
             plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
-            plt.legend(masterMolArr[pltInds[int(spectoSee)]], masterMolArr[pltInds[int(spectoSee)]], loc='upper right')
+            plt.legend(loc='upper right')
             plt.title("Graph showing KMC and MD trajectories of " + masterMolArr[pltInds[int(spectoSee)]])
-            fig.show()
+            plt.show()
