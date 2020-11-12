@@ -95,7 +95,7 @@ class simulator():
         masterStoichMat = matchNcreate.doStringMatch(matchNcreate(), list(masterReactionArr), list(masterMoleculeArr))
         print(str(time.ctime(time.time())) + ": Stoich matrix created")
 
-        xtoCompare = dataSetLoader.xi(dataSetLoader(), 3)
+        xtoCompare = dataSetLoader.xi(dataSetLoader(), simFileNum)
         xtoTake, plotInds, speciesNotTrained = dataSetLoader.createTestMD(dataSetLoader(), simFileNum, masterMoleculeArr, xtoCompare[0, :])
         xtoCompare = np.delete(xtoCompare, speciesNotTrained, axis=1)
         print(str(time.ctime(time.time())) + ": Calculated test MD")
@@ -104,7 +104,7 @@ class simulator():
                                reactionRateConstants)
 
     def iterateNplot(self, stoich_matrix, tspan, x0, xcomp, masterMolArr, pltInds, reaction_rates):
-        print("Starting simulation...")
+        print(str(time.ctime(time.time()))+ ": Started simulation")
         num_species = stoich_matrix.shape[1]
         T = np.zeros((tspan[1], 1))  # time step array
         X = np.zeros((tspan[1], num_species))  # molecules that exist over time
@@ -115,7 +115,7 @@ class simulator():
         rxnCount = 0
         print(str(time.ctime(time.time()))+ ": Simulating propensity function...")
         ##################################################################################################
-        while (T[rxnCount] < tspan[1]):  # as long as the time step stays within allocated time
+        while (rxnCount < tspan[1] - 1):  # as long as the time step stays within allocated time
             a = propensity_fcn.calc_propensity(propensity_fcn(), stoich_matrix, X[rxnCount, :], reaction_rates)
             asum = np.sum(a)  # take the entire sum of the prop function
 
@@ -144,13 +144,15 @@ class simulator():
                 break
             print(str(time.ctime(time.time())) + ": Generating picture...")
 
-            t = T[0:rxnCount - 1]
+            t = T[0:rxnCount]
             fig = plt.figure()
-            plt.plot(t, X[0:rxnCount - 1, pltInds[int(spectoSee)]], label=masterMolArr[pltInds[int(spectoSee)]]) # KMC Plot
-            plt.plot(t, xcomp[0:rxnCount - 1, int(spectoSee)], label=masterMolArr[pltInds[int(spectoSee)]]) # MD Plot
+            yvalsKMC = X[0:rxnCount, pltInds[int(spectoSee)]]
+            yvalsMD = xcomp[0:rxnCount, int(spectoSee)]
+
+            plt.plot(t, yvalsKMC, t, yvalsMD) # KMC and MD Plot
 
             plt.xlabel("Time (ps)")
             plt.ylabel("Molecules")
-            plt.legend(loc='upper right')
+            plt.legend(masterMolArr[pltInds[int(spectoSee)]], masterMolArr[pltInds[int(spectoSee)]], loc='upper right')
             plt.title("Graph showing KMC and MD trajectories of " + masterMolArr[pltInds[int(spectoSee)]])
             fig.show()

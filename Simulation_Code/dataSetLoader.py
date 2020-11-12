@@ -131,9 +131,9 @@ class dataSetLoader():
                 indexMatch = list(masterMolArr).index(line.replace('\n', ''))
                 plotIndices = np.append(plotIndices, indexMatch)
                 testMD[indexMatch] = xin[count]
-                count = count + 1
             except ValueError:
                 speciesNo = np.append(speciesNo, count)
-                count = count + 1
+
+            count = count + 1
 
         return testMD, plotIndices, speciesNo
